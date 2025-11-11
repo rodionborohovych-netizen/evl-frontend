@@ -1,1 +1,190 @@
-index-custom.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charger Location Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">⚡ EV Charger Location Analyzer</h1>
+            <p class="text-gray-600">Analyze locations and customize your installation</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Analysis Settings</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">📍 Location</label>
+                    <input 
+                        type="text" 
+                        id="address" 
+                        placeholder="e.g., London, Manchester"
+                        value="London"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">📏 Radius (km)</label>
+                    <input 
+                        type="number" 
+                        id="radius" 
+                        value="5"
+                        min="1"
+                        max="50"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">⚡ Power per Plug (kW)</label>
+                    <select 
+                        id="power" 
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    >
+                        <option value="7">7 kW - Home/Workplace</option>
+                        <option value="22">22 kW - Fast</option>
+                        <option value="50" selected>50 kW - DC Fast</option>
+                        <option value="150">150 kW - Ultra-Rapid</option>
+                        <option value="350">350 kW - Ultra-Fast</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">🔌 Number of Plugs</label>
+                    <input 
+                        type="number" 
+                        id="plugs" 
+                        value="2"
+                        min="1"
+                        max="20"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    />
+                </div>
+            </div>
+
+            <button 
+                onclick="analyzeLocation()"
+                class="mt-6 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
+            >
+                🚀 Analyze Location
+            </button>
+        </div>
+
+        <div id="loading" class="hidden bg-white rounded-lg shadow-xl p-8 text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-600 text-lg">Analyzing...</p>
+        </div>
+
+        <div id="results" class="hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-xl p-6 mb-6 text-white">
+                <h2 class="text-2xl font-bold mb-4">📊 Your Installation</h2>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-white/20 rounded-lg p-4">
+                        <p class="text-sm opacity-90">Power per Plug</p>
+                        <p class="text-3xl font-bold" id="summary-power">-</p>
+                    </div>
+                    <div class="bg-white/20 rounded-lg p-4">
+                        <p class="text-sm opacity-90">Plugs</p>
+                        <p class="text-3xl font-bold" id="summary-plugs">-</p>
+                    </div>
+                    <div class="bg-white/20 rounded-lg p-4">
+                        <p class="text-sm opacity-90">Total Power</p>
+                        <p class="text-3xl font-bold" id="summary-total">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">💰 ROI Projection</h2>
+                <div class="grid md:grid-cols-4 gap-4">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Installation Cost</p>
+                        <p class="text-2xl font-bold text-blue-600" id="roi-cost">-</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Annual Revenue</p>
+                        <p class="text-2xl font-bold text-green-600" id="roi-annual">-</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Monthly Revenue</p>
+                        <p class="text-2xl font-bold text-purple-600" id="roi-monthly">-</p>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Payback Period</p>
+                        <p class="text-2xl font-bold text-orange-600" id="roi-payback">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">🗺️ Nearby Chargers</h2>
+                <div id="chargers" class="grid md:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://web-production-e0c85.up.railway.app';
+
+        function formatCurrency(amount) {
+            return '£' + amount.toLocaleString();
+        }
+
+        async function analyzeLocation() {
+            const address = document.getElementById('address').value;
+            const radius = document.getElementById('radius').value;
+            const power = document.getElementById('power').value;
+            const plugs = document.getElementById('plugs').value;
+
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/api/analyze?address=${encodeURIComponent(address)}&radius=${radius}&power_per_plug=${power}&num_plugs=${plugs}`
+                );
+
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function displayResults(data) {
+            document.getElementById('results').classList.remove('hidden');
+
+            document.getElementById('summary-power').textContent = data.planned_installation.power_per_plug_kw + ' kW';
+            document.getElementById('summary-plugs').textContent = data.planned_installation.number_of_plugs;
+            document.getElementById('summary-total').textContent = data.planned_installation.total_power_kw + ' kW';
+
+            document.getElementById('roi-cost').textContent = formatCurrency(data.roi_projection.installation_cost);
+            document.getElementById('roi-annual').textContent = formatCurrency(data.roi_projection.estimated_annual_revenue);
+            document.getElementById('roi-monthly').textContent = formatCurrency(data.roi_projection.monthly_revenue);
+            document.getElementById('roi-payback').textContent = data.roi_projection.payback_period_years + ' years';
+
+            const chargersDiv = document.getElementById('chargers');
+            chargersDiv.innerHTML = '';
+            
+            data.chargers.slice(0, 12).forEach(charger => {
+                const div = document.createElement('div');
+                div.className = 'border-2 border-gray-200 rounded-lg p-4';
+                div.innerHTML = `
+                    <h3 class="font-bold text-gray-800 mb-2">${charger.name}</h3>
+                    <p class="text-sm text-gray-600">📍 ${charger.distance_km} km</p>
+                    <p class="text-sm text-gray-600">⚡ ${charger.power_kw} kW</p>
+                    <p class="text-sm text-gray-600">🔌 ${charger.connectors} plugs</p>
+                `;
+                chargersDiv.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
