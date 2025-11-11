@@ -3,49 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV Charger Location Analyzer</title>
+    <title>EV Charger Location Analyzer - Advanced</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
         <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
             <h1 class="text-4xl font-bold text-gray-800 mb-2">⚡ EV Charger Location Analyzer</h1>
-            <p class="text-gray-600">Analyze locations and customize your installation</p>
+            <p class="text-gray-600">Advanced analytics with demographics, traffic, and infrastructure analysis</p>
         </div>
 
+        <!-- Input Form -->
         <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Analysis Settings</h2>
             
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📍 Location</label>
-                    <input 
-                        type="text" 
-                        id="address" 
-                        placeholder="e.g., London, Manchester"
-                        value="London"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                    />
+                    <input type="text" id="address" placeholder="e.g., London, Manchester" value="London"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">📏 Radius (km)</label>
-                    <input 
-                        type="number" 
-                        id="radius" 
-                        value="5"
-                        min="1"
-                        max="50"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                    />
+                    <input type="number" id="radius" value="5" min="1" max="50"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">⚡ Power per Plug (kW)</label>
-                    <select 
-                        id="power" 
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                    >
+                    <select id="power" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
                         <option value="7">7 kW - Home/Workplace</option>
                         <option value="22">22 kW - Fast</option>
                         <option value="50" selected>50 kW - DC Fast</option>
@@ -53,43 +39,82 @@
                         <option value="350">350 kW - Ultra-Fast</option>
                     </select>
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">🔌 Number of Plugs</label>
-                    <input 
-                        type="number" 
-                        id="plugs" 
-                        value="2"
-                        min="1"
-                        max="20"
-                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                    />
+                    <input type="number" id="plugs" value="2" min="1" max="20"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" />
                 </div>
             </div>
 
-            <button 
-                onclick="analyzeLocation()"
-                class="mt-6 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
-            >
+            <button onclick="analyzeLocation()"
+                class="mt-6 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg">
                 🚀 Analyze Location
             </button>
         </div>
 
         <div id="loading" class="hidden bg-white rounded-lg shadow-xl p-8 text-center">
             <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-gray-600 text-lg">Analyzing...</p>
+            <p class="text-gray-600 text-lg">Analyzing demographics, traffic, infrastructure...</p>
         </div>
 
         <div id="results" class="hidden">
+            <!-- Demographics & Traffic -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">🚗 EV & Demographics</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                            <span class="text-gray-700">City/Area</span>
+                            <span class="font-bold text-blue-600" id="demo-city">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded">
+                            <span class="text-gray-700">Registered EVs</span>
+                            <span class="font-bold text-green-600" id="demo-ev-count">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-purple-50 rounded">
+                            <span class="text-gray-700">Population</span>
+                            <span class="font-bold text-purple-600" id="demo-population">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-orange-50 rounded">
+                            <span class="text-gray-700">EVs per 1,000 people</span>
+                            <span class="font-bold text-orange-600" id="demo-ev-rate">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-xl p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">🚦 Traffic Analysis</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                            <span class="text-gray-700">Location Type</span>
+                            <span class="font-bold text-blue-600" id="traffic-type">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded">
+                            <span class="text-gray-700">Daily Vehicles</span>
+                            <span class="font-bold text-green-600" id="traffic-volume">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-purple-50 rounded">
+                            <span class="text-gray-700">Description</span>
+                            <span class="font-bold text-purple-600 text-sm" id="traffic-desc">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-orange-50 rounded">
+                            <span class="text-gray-700">Infrastructure Score</span>
+                            <span class="font-bold text-orange-600" id="infrastructure-score">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installation Summary -->
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-xl p-6 mb-6 text-white">
-                <h2 class="text-2xl font-bold mb-4">📊 Your Installation</h2>
+                <h2 class="text-2xl font-bold mb-4">📊 Your Planned Installation</h2>
                 <div class="grid md:grid-cols-3 gap-4">
                     <div class="bg-white/20 rounded-lg p-4">
                         <p class="text-sm opacity-90">Power per Plug</p>
                         <p class="text-3xl font-bold" id="summary-power">-</p>
                     </div>
                     <div class="bg-white/20 rounded-lg p-4">
-                        <p class="text-sm opacity-90">Plugs</p>
+                        <p class="text-sm opacity-90">Number of Plugs</p>
                         <p class="text-3xl font-bold" id="summary-plugs">-</p>
                     </div>
                     <div class="bg-white/20 rounded-lg p-4">
@@ -99,13 +124,53 @@
                 </div>
             </div>
 
+            <!-- Detailed Cost Breakdown -->
             <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">💰 ROI Projection</h2>
-                <div class="grid md:grid-cols-4 gap-4">
-                    <div class="bg-blue-50 rounded-lg p-4">
-                        <p class="text-sm text-gray-600">Installation Cost</p>
-                        <p class="text-2xl font-bold text-blue-600" id="roi-cost">-</p>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">💷 Detailed Cost Breakdown</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">⚙️ Hardware & Equipment</span>
+                            <span class="font-bold" id="cost-hardware">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">🔧 Installation Labor</span>
+                            <span class="font-bold" id="cost-labor">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">⚡ Grid Connection</span>
+                            <span class="font-bold" id="cost-grid">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">📋 Permits & Fees</span>
+                            <span class="font-bold" id="cost-permits">-</span>
+                        </div>
                     </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">🚧 Signage & Marking</span>
+                            <span class="font-bold" id="cost-signage">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">💻 Software & Network</span>
+                            <span class="font-bold" id="cost-software">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">🛡️ Contingency (10%)</span>
+                            <span class="font-bold" id="cost-contingency">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-blue-100 rounded border-2 border-blue-500">
+                            <span class="text-blue-900 font-bold">💰 TOTAL COST</span>
+                            <span class="font-bold text-blue-600 text-xl" id="cost-total">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Projection -->
+            <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">💰 Enhanced ROI Projection</h2>
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-green-50 rounded-lg p-4">
                         <p class="text-sm text-gray-600">Annual Revenue</p>
                         <p class="text-2xl font-bold text-green-600" id="roi-annual">-</p>
@@ -119,8 +184,80 @@
                         <p class="text-2xl font-bold text-orange-600" id="roi-payback">-</p>
                     </div>
                 </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-700 mb-2">Revenue Calculation Factors:</h3>
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <div class="p-3 bg-blue-50 rounded">
+                            <span class="text-sm text-gray-600">Base Revenue: </span>
+                            <span class="font-bold" id="factor-base">-</span>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded">
+                            <span class="text-sm text-gray-600">Competition: </span>
+                            <span class="font-bold" id="factor-competition">-</span>
+                        </div>
+                        <div class="p-3 bg-purple-50 rounded">
+                            <span class="text-sm text-gray-600">EV Adoption: </span>
+                            <span class="font-bold" id="factor-ev">-</span>
+                        </div>
+                        <div class="p-3 bg-orange-50 rounded">
+                            <span class="text-sm text-gray-600">Traffic: </span>
+                            <span class="font-bold" id="factor-traffic">-</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            <!-- Scores -->
+            <div class="grid md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-sm text-gray-600 mb-2">Overall</p>
+                    <p class="text-4xl font-bold" id="score-overall">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-sm text-gray-600 mb-2">Competition</p>
+                    <p class="text-4xl font-bold" id="score-competition">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-sm text-gray-600 mb-2">Demand</p>
+                    <p class="text-4xl font-bold" id="score-demand">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-sm text-gray-600 mb-2">Access</p>
+                    <p class="text-4xl font-bold" id="score-accessibility">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-sm text-gray-600 mb-2">Demographics</p>
+                    <p class="text-4xl font-bold" id="score-demographics">-</p>
+                </div>
+            </div>
+
+            <!-- Competition -->
+            <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 Competition Analysis</h2>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="border-2 border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Total in Area</p>
+                        <p class="text-3xl font-bold text-blue-600" id="comp-total">-</p>
+                    </div>
+                    <div class="border-2 border-orange-200 rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Within 2km</p>
+                        <p class="text-3xl font-bold text-orange-600" id="comp-nearby">-</p>
+                    </div>
+                    <div class="border-2 border-red-200 rounded-lg p-4">
+                        <p class="text-sm text-gray-600">Similar Power</p>
+                        <p class="text-3xl font-bold text-red-600" id="comp-similar">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">💡 Analysis Summary</h2>
+                <div id="recommendations" class="space-y-3"></div>
+            </div>
+
+            <!-- Chargers -->
             <div class="bg-white rounded-lg shadow-xl p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">🗺️ Nearby Chargers</h2>
                 <div id="chargers" class="grid md:grid-cols-3 gap-4"></div>
@@ -133,6 +270,12 @@
 
         function formatCurrency(amount) {
             return '£' + amount.toLocaleString();
+        }
+
+        function getScoreColor(score) {
+            if (score >= 0.8) return 'text-green-600';
+            if (score >= 0.6) return 'text-yellow-600';
+            return 'text-red-600';
         }
 
         async function analyzeLocation() {
@@ -148,31 +291,85 @@
                 const response = await fetch(
                     `${API_URL}/api/analyze?address=${encodeURIComponent(address)}&radius=${radius}&power_per_plug=${power}&num_plugs=${plugs}`
                 );
-
                 const data = await response.json();
                 displayResults(data);
             } catch (error) {
                 alert('Error: ' + error.message);
             }
-
             document.getElementById('loading').classList.add('hidden');
         }
 
         function displayResults(data) {
             document.getElementById('results').classList.remove('hidden');
 
+            // Demographics
+            document.getElementById('demo-city').textContent = data.demographics.city;
+            document.getElementById('demo-ev-count').textContent = data.demographics.ev_count.toLocaleString();
+            document.getElementById('demo-population').textContent = data.demographics.population.toLocaleString();
+            document.getElementById('demo-ev-rate').textContent = data.demographics.ev_per_1000_people.toFixed(1);
+
+            // Traffic
+            document.getElementById('traffic-type').textContent = data.traffic_analysis.type;
+            document.getElementById('traffic-volume').textContent = data.traffic_analysis.daily_vehicles.toLocaleString();
+            document.getElementById('traffic-desc').textContent = data.traffic_analysis.description;
+            document.getElementById('infrastructure-score').textContent = (data.infrastructure.score * 100).toFixed(0) + '%';
+
+            // Installation
             document.getElementById('summary-power').textContent = data.planned_installation.power_per_plug_kw + ' kW';
             document.getElementById('summary-plugs').textContent = data.planned_installation.number_of_plugs;
             document.getElementById('summary-total').textContent = data.planned_installation.total_power_kw + ' kW';
 
-            document.getElementById('roi-cost').textContent = formatCurrency(data.roi_projection.installation_cost);
+            // Costs
+            document.getElementById('cost-hardware').textContent = formatCurrency(data.cost_breakdown.hardware_cost);
+            document.getElementById('cost-labor').textContent = formatCurrency(data.cost_breakdown.installation_labor);
+            document.getElementById('cost-grid').textContent = formatCurrency(data.cost_breakdown.grid_upgrade);
+            document.getElementById('cost-permits').textContent = formatCurrency(data.cost_breakdown.permits_and_fees);
+            document.getElementById('cost-signage').textContent = formatCurrency(data.cost_breakdown.signage_and_marking);
+            document.getElementById('cost-software').textContent = formatCurrency(data.cost_breakdown.software_and_networking);
+            document.getElementById('cost-contingency').textContent = formatCurrency(data.cost_breakdown.contingency);
+            document.getElementById('cost-total').textContent = formatCurrency(data.cost_breakdown.total_cost);
+
+            // ROI
             document.getElementById('roi-annual').textContent = formatCurrency(data.roi_projection.estimated_annual_revenue);
             document.getElementById('roi-monthly').textContent = formatCurrency(data.roi_projection.monthly_revenue);
             document.getElementById('roi-payback').textContent = data.roi_projection.payback_period_years + ' years';
 
+            // Factors
+            document.getElementById('factor-base').textContent = formatCurrency(data.roi_projection.revenue_factors.base_revenue);
+            document.getElementById('factor-competition').textContent = data.roi_projection.revenue_factors.competition_adjustment;
+            document.getElementById('factor-ev').textContent = data.roi_projection.revenue_factors.ev_adoption_factor;
+            document.getElementById('factor-traffic').textContent = data.roi_projection.revenue_factors.traffic_factor;
+
+            // Scores
+            document.getElementById('score-overall').textContent = data.scores.overall.toFixed(2);
+            document.getElementById('score-overall').className = `text-4xl font-bold ${getScoreColor(data.scores.overall)}`;
+            document.getElementById('score-competition').textContent = data.scores.competition.toFixed(2);
+            document.getElementById('score-competition').className = `text-4xl font-bold ${getScoreColor(data.scores.competition)}`;
+            document.getElementById('score-demand').textContent = data.scores.demand.toFixed(2);
+            document.getElementById('score-demand').className = `text-4xl font-bold ${getScoreColor(data.scores.demand)}`;
+            document.getElementById('score-accessibility').textContent = data.scores.accessibility.toFixed(2);
+            document.getElementById('score-accessibility').className = `text-4xl font-bold ${getScoreColor(data.scores.accessibility)}`;
+            document.getElementById('score-demographics').textContent = data.scores.demographics.toFixed(2);
+            document.getElementById('score-demographics').className = `text-4xl font-bold ${getScoreColor(data.scores.demographics)}`;
+
+            // Competition
+            document.getElementById('comp-total').textContent = data.competition_analysis.total_chargers_in_area;
+            document.getElementById('comp-nearby').textContent = data.competition_analysis.chargers_within_2km;
+            document.getElementById('comp-similar').textContent = data.competition_analysis.similar_power_chargers_nearby;
+
+            // Recommendations
+            const recsDiv = document.getElementById('recommendations');
+            recsDiv.innerHTML = '';
+            data.recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'bg-blue-50 border-l-4 border-blue-500 p-4 rounded';
+                div.textContent = rec.text;
+                recsDiv.appendChild(div);
+            });
+
+            // Chargers
             const chargersDiv = document.getElementById('chargers');
             chargersDiv.innerHTML = '';
-            
             data.chargers.slice(0, 12).forEach(charger => {
                 const div = document.createElement('div');
                 div.className = 'border-2 border-gray-200 rounded-lg p-4';
