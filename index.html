@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV Charger Location Analyzer - Advanced</title>
+    <title>EVL v6.0 - Comprehensive Location Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">⚡ EV Charger Location Analyzer</h1>
-            <p class="text-gray-600">Advanced analytics with demographics, traffic, and infrastructure analysis</p>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">⚡ EVL v6.0 - Comprehensive Analyzer</h1>
+            <p class="text-gray-600">Advanced analytics with facility-based dwell time, smart sorting, and comprehensive scoring</p>
         </div>
 
         <!-- Input Form -->
@@ -46,6 +46,46 @@
                 </div>
             </div>
 
+            <!-- Facility Selection -->
+            <div class="mt-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">🏪 Location Facilities (affects dwell time & revenue)</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="grocery" />
+                        <span class="text-sm font-medium">🛒 Grocery Store</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="restaurant" />
+                        <span class="text-sm font-medium">🍽️ Restaurant</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="shopping_mall" />
+                        <span class="text-sm font-medium">🏬 Shopping Mall</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="coffee" />
+                        <span class="text-sm font-medium">☕ Coffee Shop</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="gym" />
+                        <span class="text-sm font-medium">💪 Gym/Fitness</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="hotel" />
+                        <span class="text-sm font-medium">🏨 Hotel</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="workplace" />
+                        <span class="text-sm font-medium">🏢 Workplace</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
+                        <input type="checkbox" class="facility-checkbox w-5 h-5" value="cinema" />
+                        <span class="text-sm font-medium">🎬 Cinema</span>
+                    </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">💡 Select facilities available at your location to get accurate dwell time and power recommendations</p>
+            </div>
+
             <button onclick="analyzeLocation()"
                 class="mt-6 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg">
                 🚀 Analyze Location
@@ -54,15 +94,70 @@
 
         <div id="loading" class="hidden bg-white rounded-lg shadow-xl p-8 text-center">
             <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-gray-600 text-lg">Analyzing demographics, traffic, infrastructure...</p>
+            <p class="text-gray-600 text-lg">Analyzing facilities, demographics, traffic, accessibility...</p>
         </div>
 
         <div id="results" class="hidden">
+            <!-- Facility & Dwell Time Analysis -->
+            <div id="facility-section" class="hidden bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-xl p-6 mb-6 text-white">
+                <h2 class="text-2xl font-bold mb-4">🏪 Facility & Dwell Time Analysis</h2>
+                <div class="grid md:grid-cols-4 gap-4">
+                    <div class="bg-white/20 rounded-lg p-4">
+                        <p class="text-sm opacity-90">Location Type</p>
+                        <p class="text-2xl font-bold" id="facility-type">-</p>
+                    </div>
+                    <div class="bg-white/20 rounded-lg p-4">
+                        <p class="text-sm opacity-90">Avg Dwell Time</p>
+                        <p class="text-2xl font-bold" id="facility-dwell">-</p>
+                    </div>
+                    <div class="bg-white/20 rounded-lg p-4">
+                        <p class="text-sm opacity-90">Popularity Score</p>
+                        <p class="text-2xl font-bold" id="facility-popularity">-</p>
+                    </div>
+                    <div class="bg-white/20 rounded-lg p-4">
+                        <p class="text-sm opacity-90">Recommended Power</p>
+                        <p class="text-xl font-bold" id="facility-recommended">-</p>
+                    </div>
+                </div>
+                <div class="mt-4 bg-white/10 rounded-lg p-4">
+                    <p class="text-sm font-semibold mb-1">💡 Analysis:</p>
+                    <p class="text-sm" id="facility-reasoning">-</p>
+                </div>
+            </div>
+
+            <!-- Comprehensive Scores -->
+            <div class="grid md:grid-cols-6 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-xs text-gray-600 mb-2">Overall Score</p>
+                    <p class="text-4xl font-bold" id="score-overall">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-xs text-gray-600 mb-2">Demand</p>
+                    <p class="text-4xl font-bold" id="score-demand">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-xs text-gray-600 mb-2">Traffic & Access</p>
+                    <p class="text-4xl font-bold" id="score-traffic-access">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-xs text-gray-600 mb-2">Competition</p>
+                    <p class="text-4xl font-bold" id="score-competition">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-xs text-gray-600 mb-2">Infrastructure</p>
+                    <p class="text-4xl font-bold" id="score-infrastructure">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
+                    <p class="text-xs text-gray-600 mb-2">Facility Pop.</p>
+                    <p class="text-4xl font-bold" id="score-facility">-</p>
+                </div>
+            </div>
+
             <!-- Demographics & Traffic -->
             <div class="grid md:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white rounded-lg shadow-xl p-6">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">🚗 EV & Demographics</h2>
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
                             <span class="text-gray-700">City/Area</span>
                             <span class="font-bold text-blue-600" id="demo-city">-</span>
@@ -76,15 +171,19 @@
                             <span class="font-bold text-purple-600" id="demo-population">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-orange-50 rounded">
-                            <span class="text-gray-700">EVs per 1,000 people</span>
+                            <span class="text-gray-700">EVs per 1,000</span>
                             <span class="font-bold text-orange-600" id="demo-ev-rate">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-pink-50 rounded">
+                            <span class="text-gray-700">Income Level</span>
+                            <span class="font-bold text-pink-600" id="demo-income">-</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-lg shadow-xl p-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">🚦 Traffic Analysis</h2>
-                    <div class="space-y-4">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">🚦 Traffic & Accessibility</h2>
+                    <div class="space-y-3">
                         <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
                             <span class="text-gray-700">Location Type</span>
                             <span class="font-bold text-blue-600" id="traffic-type">-</span>
@@ -94,12 +193,16 @@
                             <span class="font-bold text-green-600" id="traffic-volume">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-purple-50 rounded">
-                            <span class="text-gray-700">Description</span>
-                            <span class="font-bold text-purple-600 text-sm" id="traffic-desc">-</span>
+                            <span class="text-gray-700">Peak Hours</span>
+                            <span class="font-bold text-purple-600 text-sm" id="traffic-peak">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-orange-50 rounded">
-                            <span class="text-gray-700">Infrastructure Score</span>
-                            <span class="font-bold text-orange-600" id="infrastructure-score">-</span>
+                            <span class="text-gray-700">Accessibility</span>
+                            <span class="font-bold text-orange-600" id="traffic-accessibility">-</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-pink-50 rounded">
+                            <span class="text-gray-700">Visibility</span>
+                            <span class="font-bold text-pink-600" id="traffic-visibility">-</span>
                         </div>
                     </div>
                 </div>
@@ -107,7 +210,7 @@
 
             <!-- Installation Summary -->
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-xl p-6 mb-6 text-white">
-                <h2 class="text-2xl font-bold mb-4">📊 Your Planned Installation</h2>
+                <h2 class="text-2xl font-bold mb-4">📊 Planned Installation</h2>
                 <div class="grid md:grid-cols-3 gap-4">
                     <div class="bg-white/20 rounded-lg p-4">
                         <p class="text-sm opacity-90">Power per Plug</p>
@@ -126,41 +229,41 @@
 
             <!-- Detailed Cost Breakdown -->
             <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">💷 Detailed Cost Breakdown</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">💷 Cost Breakdown</h2>
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="space-y-3">
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span class="text-gray-700">⚙️ Hardware & Equipment</span>
+                            <span class="text-gray-700">⚙️ Hardware</span>
                             <span class="font-bold" id="cost-hardware">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span class="text-gray-700">🔧 Installation Labor</span>
+                            <span class="text-gray-700">🔧 Labor</span>
                             <span class="font-bold" id="cost-labor">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span class="text-gray-700">⚡ Grid Connection</span>
+                            <span class="text-gray-700">⚡ Grid</span>
                             <span class="font-bold" id="cost-grid">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span class="text-gray-700">📋 Permits & Fees</span>
+                            <span class="text-gray-700">📋 Permits</span>
                             <span class="font-bold" id="cost-permits">-</span>
                         </div>
                     </div>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span class="text-gray-700">🚧 Signage & Marking</span>
+                            <span class="text-gray-700">🚧 Signage</span>
                             <span class="font-bold" id="cost-signage">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span class="text-gray-700">💻 Software & Network</span>
+                            <span class="text-gray-700">💻 Software</span>
                             <span class="font-bold" id="cost-software">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span class="text-gray-700">🛡️ Contingency (10%)</span>
+                            <span class="text-gray-700">🛡️ Contingency</span>
                             <span class="font-bold" id="cost-contingency">-</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-blue-100 rounded border-2 border-blue-500">
-                            <span class="text-blue-900 font-bold">💰 TOTAL COST</span>
+                            <span class="text-blue-900 font-bold">💰 TOTAL</span>
                             <span class="font-bold text-blue-600 text-xl" id="cost-total">-</span>
                         </div>
                     </div>
@@ -169,7 +272,7 @@
 
             <!-- ROI Projection -->
             <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">💰 Enhanced ROI Projection</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">💰 ROI Projection</h2>
                 <div class="grid md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-green-50 rounded-lg p-4">
                         <p class="text-sm text-gray-600">Annual Revenue</p>
@@ -186,10 +289,10 @@
                 </div>
 
                 <div>
-                    <h3 class="font-bold text-gray-700 mb-2">Revenue Calculation Factors:</h3>
-                    <div class="grid md:grid-cols-2 gap-3">
+                    <h3 class="font-bold text-gray-700 mb-2">Revenue Factors:</h3>
+                    <div class="grid md:grid-cols-3 gap-3">
                         <div class="p-3 bg-blue-50 rounded">
-                            <span class="text-sm text-gray-600">Base Revenue: </span>
+                            <span class="text-sm text-gray-600">Base: </span>
                             <span class="font-bold" id="factor-base">-</span>
                         </div>
                         <div class="p-3 bg-green-50 rounded">
@@ -201,34 +304,18 @@
                             <span class="font-bold" id="factor-ev">-</span>
                         </div>
                         <div class="p-3 bg-orange-50 rounded">
+                            <span class="text-sm text-gray-600">Income: </span>
+                            <span class="font-bold" id="factor-income">-</span>
+                        </div>
+                        <div class="p-3 bg-pink-50 rounded">
                             <span class="text-sm text-gray-600">Traffic: </span>
                             <span class="font-bold" id="factor-traffic">-</span>
                         </div>
+                        <div class="p-3 bg-indigo-50 rounded">
+                            <span class="text-sm text-gray-600">Facilities: </span>
+                            <span class="font-bold" id="factor-facility">-</span>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Scores -->
-            <div class="grid md:grid-cols-5 gap-4 mb-6">
-                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
-                    <p class="text-sm text-gray-600 mb-2">Overall</p>
-                    <p class="text-4xl font-bold" id="score-overall">-</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
-                    <p class="text-sm text-gray-600 mb-2">Competition</p>
-                    <p class="text-4xl font-bold" id="score-competition">-</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
-                    <p class="text-sm text-gray-600 mb-2">Demand</p>
-                    <p class="text-4xl font-bold" id="score-demand">-</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
-                    <p class="text-sm text-gray-600 mb-2">Access</p>
-                    <p class="text-4xl font-bold" id="score-accessibility">-</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-xl p-4 text-center">
-                    <p class="text-sm text-gray-600 mb-2">Demographics</p>
-                    <p class="text-4xl font-bold" id="score-demographics">-</p>
                 </div>
             </div>
 
@@ -253,13 +340,16 @@
 
             <!-- Recommendations -->
             <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">💡 Analysis Summary</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">💡 Smart Recommendations</h2>
                 <div id="recommendations" class="space-y-3"></div>
             </div>
 
-            <!-- Chargers -->
+            <!-- Nearby Chargers (Smart Sorted) -->
             <div class="bg-white rounded-lg shadow-xl p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">🗺️ Nearby Chargers</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">🗺️ Nearby Chargers (Smart Sorted)</h2>
+                <p class="text-sm text-gray-600 mb-4">
+                    📌 Sorted by relevance: Similar power first, then higher, then lower
+                </p>
                 <div id="chargers" class="grid md:grid-cols-3 gap-4"></div>
             </div>
         </div>
@@ -278,18 +368,24 @@
             return 'text-red-600';
         }
 
+        function getSelectedFacilities() {
+            const checkboxes = document.querySelectorAll('.facility-checkbox:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
         async function analyzeLocation() {
             const address = document.getElementById('address').value;
             const radius = document.getElementById('radius').value;
             const power = document.getElementById('power').value;
             const plugs = document.getElementById('plugs').value;
+            const facilities = getSelectedFacilities().join(',');
 
             document.getElementById('results').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
 
             try {
                 const response = await fetch(
-                    `${API_URL}/api/analyze?address=${encodeURIComponent(address)}&radius=${radius}&power_per_plug=${power}&num_plugs=${plugs}`
+                    `${API_URL}/api/analyze?address=${encodeURIComponent(address)}&radius=${radius}&power_per_plug=${power}&num_plugs=${plugs}&facilities=${encodeURIComponent(facilities)}`
                 );
                 const data = await response.json();
                 displayResults(data);
@@ -302,17 +398,45 @@
         function displayResults(data) {
             document.getElementById('results').classList.remove('hidden');
 
+            // Facility Analysis
+            if (data.facility_analysis.facilities_count > 0) {
+                document.getElementById('facility-section').classList.remove('hidden');
+                document.getElementById('facility-type').textContent = data.facility_analysis.location_type;
+                document.getElementById('facility-dwell').textContent = data.facility_analysis.avg_dwell_time_minutes + ' min';
+                document.getElementById('facility-popularity').textContent = data.facility_analysis.popularity_score;
+                document.getElementById('facility-recommended').textContent = data.facility_analysis.recommended_power;
+                document.getElementById('facility-reasoning').textContent = data.facility_analysis.reasoning;
+            } else {
+                document.getElementById('facility-section').classList.add('hidden');
+            }
+
+            // Comprehensive Scores
+            document.getElementById('score-overall').textContent = data.scores.overall.toFixed(2);
+            document.getElementById('score-overall').className = `text-4xl font-bold ${getScoreColor(data.scores.overall)}`;
+            document.getElementById('score-demand').textContent = data.scores.demand.toFixed(2);
+            document.getElementById('score-demand').className = `text-4xl font-bold ${getScoreColor(data.scores.demand)}`;
+            document.getElementById('score-traffic-access').textContent = data.scores.traffic_accessibility.toFixed(2);
+            document.getElementById('score-traffic-access').className = `text-4xl font-bold ${getScoreColor(data.scores.traffic_accessibility)}`;
+            document.getElementById('score-competition').textContent = data.scores.competition.toFixed(2);
+            document.getElementById('score-competition').className = `text-4xl font-bold ${getScoreColor(data.scores.competition)}`;
+            document.getElementById('score-infrastructure').textContent = data.scores.infrastructure.toFixed(2);
+            document.getElementById('score-infrastructure').className = `text-4xl font-bold ${getScoreColor(data.scores.infrastructure)}`;
+            document.getElementById('score-facility').textContent = data.scores.facility_popularity.toFixed(2);
+            document.getElementById('score-facility').className = `text-4xl font-bold ${getScoreColor(data.scores.facility_popularity)}`;
+
             // Demographics
             document.getElementById('demo-city').textContent = data.demographics.city;
             document.getElementById('demo-ev-count').textContent = data.demographics.ev_count.toLocaleString();
             document.getElementById('demo-population').textContent = data.demographics.population.toLocaleString();
             document.getElementById('demo-ev-rate').textContent = data.demographics.ev_per_1000_people.toFixed(1);
+            document.getElementById('demo-income').textContent = data.demographics.income_level.toUpperCase();
 
             // Traffic
             document.getElementById('traffic-type').textContent = data.traffic_analysis.type;
             document.getElementById('traffic-volume').textContent = data.traffic_analysis.daily_vehicles.toLocaleString();
-            document.getElementById('traffic-desc').textContent = data.traffic_analysis.description;
-            document.getElementById('infrastructure-score').textContent = (data.infrastructure.score * 100).toFixed(0) + '%';
+            document.getElementById('traffic-peak').textContent = data.traffic_analysis.peak_hours;
+            document.getElementById('traffic-accessibility').textContent = (data.traffic_analysis.accessibility_score * 100).toFixed(0) + '%';
+            document.getElementById('traffic-visibility').textContent = (data.traffic_analysis.visibility_score * 100).toFixed(0) + '%';
 
             // Installation
             document.getElementById('summary-power').textContent = data.planned_installation.power_per_plug_kw + ' kW';
@@ -338,19 +462,9 @@
             document.getElementById('factor-base').textContent = formatCurrency(data.roi_projection.revenue_factors.base_revenue);
             document.getElementById('factor-competition').textContent = data.roi_projection.revenue_factors.competition_adjustment;
             document.getElementById('factor-ev').textContent = data.roi_projection.revenue_factors.ev_adoption_factor;
+            document.getElementById('factor-income').textContent = data.roi_projection.revenue_factors.income_factor;
             document.getElementById('factor-traffic').textContent = data.roi_projection.revenue_factors.traffic_factor;
-
-            // Scores
-            document.getElementById('score-overall').textContent = data.scores.overall.toFixed(2);
-            document.getElementById('score-overall').className = `text-4xl font-bold ${getScoreColor(data.scores.overall)}`;
-            document.getElementById('score-competition').textContent = data.scores.competition.toFixed(2);
-            document.getElementById('score-competition').className = `text-4xl font-bold ${getScoreColor(data.scores.competition)}`;
-            document.getElementById('score-demand').textContent = data.scores.demand.toFixed(2);
-            document.getElementById('score-demand').className = `text-4xl font-bold ${getScoreColor(data.scores.demand)}`;
-            document.getElementById('score-accessibility').textContent = data.scores.accessibility.toFixed(2);
-            document.getElementById('score-accessibility').className = `text-4xl font-bold ${getScoreColor(data.scores.accessibility)}`;
-            document.getElementById('score-demographics').textContent = data.scores.demographics.toFixed(2);
-            document.getElementById('score-demographics').className = `text-4xl font-bold ${getScoreColor(data.scores.demographics)}`;
+            document.getElementById('factor-facility').textContent = data.roi_projection.revenue_factors.facility_popularity;
 
             // Competition
             document.getElementById('comp-total').textContent = data.competition_analysis.total_chargers_in_area;
@@ -362,22 +476,35 @@
             recsDiv.innerHTML = '';
             data.recommendations.forEach(rec => {
                 const div = document.createElement('div');
-                div.className = 'bg-blue-50 border-l-4 border-blue-500 p-4 rounded';
+                const isWarning = rec.type === 'warning';
+                div.className = isWarning 
+                    ? 'bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded'
+                    : 'bg-blue-50 border-l-4 border-blue-500 p-4 rounded';
                 div.textContent = rec.text;
                 recsDiv.appendChild(div);
             });
 
-            // Chargers
+            // Chargers (already sorted by backend)
             const chargersDiv = document.getElementById('chargers');
             chargersDiv.innerHTML = '';
-            data.chargers.slice(0, 12).forEach(charger => {
+            data.chargers.slice(0, 12).forEach((charger, index) => {
                 const div = document.createElement('div');
-                div.className = 'border-2 border-gray-200 rounded-lg p-4';
+                const isSimilar = Math.abs(charger.power_kw - data.planned_installation.power_per_plug_kw) 
+                    < data.planned_installation.power_per_plug_kw * 0.3;
+                const borderColor = isSimilar ? 'border-blue-500' : 'border-gray-200';
+                const badgeColor = isSimilar ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
+                
+                div.className = `border-2 ${borderColor} rounded-lg p-4`;
                 div.innerHTML = `
-                    <h3 class="font-bold text-gray-800 mb-2">${charger.name}</h3>
-                    <p class="text-sm text-gray-600">📍 ${charger.distance_km} km</p>
-                    <p class="text-sm text-gray-600">⚡ ${charger.power_kw} kW</p>
-                    <p class="text-sm text-gray-600">🔌 ${charger.connectors} plugs</p>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-800 text-sm">${charger.name}</h3>
+                        ${index < 3 ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Top Match</span>' : ''}
+                    </div>
+                    <p class="text-xs text-gray-600">📍 ${charger.distance_km} km away</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="${badgeColor} text-xs px-2 py-1 rounded font-semibold">⚡ ${charger.power_kw} kW</span>
+                        <span class="text-xs text-gray-600">🔌 ${charger.connectors}</span>
+                    </div>
                 `;
                 chargersDiv.appendChild(div);
             });
