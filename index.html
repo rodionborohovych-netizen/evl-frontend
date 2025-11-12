@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVL v8.0 - Professional Site Analysis</title>
+    <title>EVL v9.0 - Professional Site Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
     <div class="container mx-auto px-4 py-6">
         <!-- Header -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-xl p-6 mb-6 text-white">
-            <h1 class="text-4xl font-bold mb-2">⚡ EVL v8.0 Professional</h1>
-            <p class="text-blue-100">Comprehensive Multi-Source Site Analysis • 10+ Data Sources • Real-Time Intelligence</p>
+            <h1 class="text-4xl font-bold mb-2">⚡ EVL v9.0 Professional</h1>
+            <p class="text-blue-100">Maximum Free Data Integration • 15+ Data Sources • Real-Time Intelligence</p>
         </div>
 
         <!-- Input Form -->
@@ -33,6 +33,7 @@
                         <option value="PL">Poland</option>
                         <option value="NL">Netherlands</option>
                         <option value="NO">Norway</option>
+                        <option value="UA">Ukraine</option>
                     </select>
                 </div>
                 <div>
@@ -104,8 +105,8 @@
 
         <div id="loading" class="hidden bg-white rounded-lg shadow-xl p-8 text-center">
             <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-gray-600 text-lg font-semibold">Analyzing 10+ Data Sources...</p>
-            <p class="text-sm text-gray-500 mt-2">Traffic • Grid • Competition • Demographics • Infrastructure</p>
+            <p class="text-gray-600 text-lg font-semibold">Analyzing 15+ Data Sources...</p>
+            <p class="text-sm text-gray-500 mt-2">OSM • Traffic • Grid • EV Market • Competition • Demographics</p>
         </div>
 
         <div id="results" class="hidden">
@@ -135,6 +136,10 @@
                     <p class="text-3xl font-bold" id="score-demand">-</p>
                 </div>
                 <div class="bg-white rounded-lg shadow-lg p-4 text-center">
+                    <p class="text-xs text-gray-600 mb-1">EV Market</p>
+                    <p class="text-3xl font-bold" id="score-ev-market">-</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-4 text-center">
                     <p class="text-xs text-gray-600 mb-1">Grid</p>
                     <p class="text-3xl font-bold" id="score-grid">-</p>
                 </div>
@@ -145,10 +150,6 @@
                 <div class="bg-white rounded-lg shadow-lg p-4 text-center">
                     <p class="text-xs text-gray-600 mb-1">Parking</p>
                     <p class="text-3xl font-bold" id="score-parking">-</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-lg p-4 text-center">
-                    <p class="text-xs text-gray-600 mb-1">Site</p>
-                    <p class="text-3xl font-bold" id="score-site">-</p>
                 </div>
                 <div class="bg-white rounded-lg shadow-lg p-4 text-center">
                     <p class="text-xs text-gray-600 mb-1">Facility</p>
@@ -198,7 +199,10 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8000'; // Change to your Railway URL
+        // ✅ FIXED: Configurable API URL - change this to your Railway URL
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000'
+            : 'https://your-railway-app.up.railway.app'; // ⬅️ CHANGE THIS to your Railway URL
 
         function getScoreColor(score) {
             if (score >= 0.8) return 'text-green-600';
@@ -234,7 +238,7 @@
                 const data = await response.json();
                 displayResults(data);
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('Error: ' + error.message + '\n\nMake sure your backend is running and the API_URL is correct!');
                 console.error(error);
             }
             
@@ -244,13 +248,13 @@
         function displayResults(data) {
             document.getElementById('results').classList.remove('hidden');
 
-            // Data Quality
+            // Data Quality - ✅ FIXED: matches v9.0 structure
             const quality = data.data_quality;
-            document.getElementById('data-quality-score').textContent = quality.real_data_percentage + '%';
+            document.getElementById('data-quality-score').textContent = quality.data_coverage + '%';
             document.getElementById('data-quality-text').textContent = 
-                `${quality.sources_used}/${quality.total_sources} data sources active`;
+                `${quality.sources_active}/${quality.sources_available} data sources active`;
 
-            // Scores
+            // Scores - ✅ FIXED: matches v9.0 structure
             const scores = data.scores;
             document.getElementById('score-overall').textContent = scores.overall.toFixed(2);
             document.getElementById('score-overall').className = `text-3xl font-bold ${getScoreColor(scores.overall)}`;
@@ -258,67 +262,69 @@
             document.getElementById('score-traffic').className = `text-3xl font-bold ${getScoreColor(scores.traffic_accessibility)}`;
             document.getElementById('score-demand').textContent = scores.demand.toFixed(2);
             document.getElementById('score-demand').className = `text-3xl font-bold ${getScoreColor(scores.demand)}`;
+            document.getElementById('score-ev-market').textContent = scores.ev_market_maturity.toFixed(2);
+            document.getElementById('score-ev-market').className = `text-3xl font-bold ${getScoreColor(scores.ev_market_maturity)}`;
             document.getElementById('score-grid').textContent = scores.grid_readiness.toFixed(2);
             document.getElementById('score-grid').className = `text-3xl font-bold ${getScoreColor(scores.grid_readiness)}`;
             document.getElementById('score-competition').textContent = scores.competition.toFixed(2);
             document.getElementById('score-competition').className = `text-3xl font-bold ${getScoreColor(scores.competition)}`;
             document.getElementById('score-parking').textContent = scores.parking_access.toFixed(2);
             document.getElementById('score-parking').className = `text-3xl font-bold ${getScoreColor(scores.parking_access)}`;
-            document.getElementById('score-site').textContent = scores.site_quality.toFixed(2);
-            document.getElementById('score-site').className = `text-3xl font-bold ${getScoreColor(scores.site_quality)}`;
             document.getElementById('score-facility').textContent = scores.facility_popularity.toFixed(2);
             document.getElementById('score-facility').className = `text-3xl font-bold ${getScoreColor(scores.facility_popularity)}`;
 
-            // Traffic Insights
+            // Traffic Insights - ✅ FIXED: matches v9.0 structure
             const trafficDiv = document.getElementById('traffic-insights');
             trafficDiv.innerHTML = '';
             
-            const traffic = data.comprehensive_data.traffic_accessibility;
-            if (traffic.uk_dft_traffic) {
-                const dft = traffic.uk_dft_traffic;
+            const traffic = data.comprehensive_data.traffic; // ✅ Changed from traffic_accessibility
+            if (traffic && traffic.available) {
                 trafficDiv.innerHTML += `
                     <div class="bg-blue-50 p-3 rounded">
                         <p class="font-bold text-blue-800">Real Traffic Data</p>
-                        <p class="text-sm">${dft.aadt.toLocaleString()} vehicles/day</p>
-                        <p class="text-xs text-gray-600">${dft.road_name}</p>
+                        <p class="text-sm">${traffic.aadt.toLocaleString()} vehicles/day</p>
+                        <p class="text-xs text-gray-600">${traffic.road_name}</p>
                     </div>
                 `;
             }
-            if (traffic.osm_roads) {
-                const roads = traffic.osm_roads;
+            
+            const osm = data.comprehensive_data.osm_comprehensive;
+            if (osm && osm.roads) {
                 trafficDiv.innerHTML += `
                     <div class="bg-gray-50 p-3 rounded">
                         <p class="font-bold">Road Type</p>
-                        <p class="text-sm">${roads.road_type}</p>
-                        <p class="text-xs text-gray-600">${roads.nearest_road}</p>
+                        <p class="text-sm">${osm.roads.type}</p>
+                        <p class="text-xs text-gray-600">${osm.roads.nearest.name}</p>
                     </div>
                 `;
             }
 
-            // Grid Insights
+            // Grid Insights - ✅ FIXED: matches v9.0 structure
             const gridDiv = document.getElementById('grid-insights');
             gridDiv.innerHTML = '';
             
-            const grid = data.comprehensive_data.electrical_infrastructure.grid;
-            if (grid && grid.nearest_substation) {
-                gridDiv.innerHTML = `
-                    <div class="bg-yellow-50 p-3 rounded">
-                        <p class="font-bold text-yellow-800">Nearest Substation</p>
-                        <p class="text-sm">${grid.nearest_substation.distance_km.toFixed(1)} km away</p>
-                        <p class="text-xs text-gray-600">${grid.nearest_substation.voltage}</p>
-                    </div>
-                    <div class="bg-green-50 p-3 rounded">
-                        <p class="font-bold text-green-800">Est. Connection Cost</p>
-                        <p class="text-sm">£${grid.estimated_connection_cost.toLocaleString()}</p>
-                    </div>
-                `;
+            if (osm && osm.grid) {
+                const grid = osm.grid; // ✅ Changed path
+                if (grid.nearest) {
+                    gridDiv.innerHTML = `
+                        <div class="bg-yellow-50 p-3 rounded">
+                            <p class="font-bold text-yellow-800">Nearest Substation</p>
+                            <p class="text-sm">${grid.nearest.distance_km.toFixed(1)} km away</p>
+                            <p class="text-xs text-gray-600">${grid.nearest.voltage}</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded">
+                            <p class="font-bold text-green-800">Est. Connection Cost</p>
+                            <p class="text-sm">£${grid.estimated_connection_cost.toLocaleString()}</p>
+                        </div>
+                    `;
+                }
             }
 
-            // Competition Insights
+            // Competition Insights - ✅ FIXED: matches v9.0 structure
             const compDiv = document.getElementById('competition-insights');
             compDiv.innerHTML = '';
             
-            const comp = data.comprehensive_data.competition.chargers;
+            const comp = data.comprehensive_data.competition; // ✅ Changed path
             if (comp) {
                 compDiv.innerHTML = `
                     <div class="bg-purple-50 p-3 rounded">
@@ -352,31 +358,16 @@
                 recsDiv.appendChild(div);
             });
 
-            // Data Sources
+            // Data Sources - ✅ FIXED: uses actual data from API
             const sourcesDiv = document.getElementById('data-sources');
             sourcesDiv.innerHTML = '';
             
-            const sources = [
-                {name: 'OSM Roads', active: !!traffic.osm_roads},
-                {name: 'UK DfT Traffic', active: !!traffic.uk_dft_traffic},
-                {name: 'Google Maps', active: !!traffic.google_maps},
-                {name: 'TomTom', active: !!traffic.tomtom},
-                {name: 'OSM Land Use', active: !!data.comprehensive_data.demand_potential.land_use},
-                {name: 'Parking Data', active: !!data.comprehensive_data.demand_potential.parking},
-                {name: 'EAFO Stats', active: !!data.comprehensive_data.demand_potential.eafo},
-                {name: 'Grid Data', active: !!grid},
-                {name: 'Competition', active: !!comp},
-                {name: 'Site Amenities', active: !!data.comprehensive_data.site_feasibility.amenities}
-            ];
-
-            sources.forEach(source => {
+            quality.all_sources.forEach(sourceName => {
                 const div = document.createElement('div');
-                div.className = source.active 
-                    ? 'bg-green-100 border border-green-300 rounded-lg p-3'
-                    : 'bg-gray-100 border border-gray-300 rounded-lg p-3 opacity-50';
+                div.className = 'bg-green-100 border border-green-300 rounded-lg p-3';
                 div.innerHTML = `
-                    <p class="font-semibold text-sm ${source.active ? 'text-green-800' : 'text-gray-600'}">
-                        ${source.active ? '✓' : '○'} ${source.name}
+                    <p class="font-semibold text-sm text-green-800">
+                        ✓ ${sourceName}
                     </p>
                 `;
                 sourcesDiv.appendChild(div);
