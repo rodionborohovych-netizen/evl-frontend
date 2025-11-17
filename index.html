@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVL v2.0 - EV Charger Location Analyzer</title>
+    <title>EVL v2.0 - EV Charger Location Analyzer - Enhanced</title>
     <style>
         * {
             margin: 0;
@@ -177,7 +177,7 @@
         /* Score Cards */
         .score-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 30px 0;
         }
@@ -189,6 +189,7 @@
             text-align: center;
             border: 2px solid #e0e0e0;
             transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
         }
 
         .score-card:hover {
@@ -216,10 +217,69 @@
             margin-top: 10px;
         }
 
+        .score-interpretation {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
         .score-excellent { color: #10b981; }
         .score-good { color: #22c55e; }
         .score-moderate { color: #f59e0b; }
         .score-weak { color: #ef4444; }
+
+        /* Expandable Details */
+        .expand-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-top: 10px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .expand-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .details-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .details-section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
 
         /* Financial Summary */
         .financial-grid {
@@ -252,6 +312,41 @@
             font-size: 0.85em;
             color: #999;
             margin-top: 5px;
+        }
+
+        /* Financial Breakdown Tables */
+        .breakdown-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .breakdown-table th,
+        .breakdown-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .breakdown-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .breakdown-table td {
+            color: #666;
+        }
+
+        .breakdown-table .total {
+            font-weight: 700;
+            color: #333;
+            background: #f0f9ff;
+        }
+
+        .breakdown-table .value {
+            text-align: right;
+            font-weight: 600;
         }
 
         /* Recommendations */
@@ -325,6 +420,37 @@
             content: "⚠";
             position: absolute;
             left: 0;
+        }
+
+        /* Sessions Range Display */
+        .sessions-range {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .session-estimate {
+            text-align: center;
+        }
+
+        .session-estimate .label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .session-estimate .value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .session-estimate.central .value {
+            font-size: 2em;
+            color: #10b981;
         }
 
         /* Loading */
@@ -422,6 +548,44 @@
         .status-partial { background: #fef3c7; color: #92400e; }
         .status-error { background: #fee2e2; color: #991b1b; }
 
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header h1 {
@@ -439,6 +603,10 @@
             .input-section {
                 grid-template-columns: 1fr;
             }
+
+            .tabs {
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
@@ -446,8 +614,8 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>⚡ EVL v2.0</h1>
-            <p>EV Charger Location Analyzer - Business Intelligence</p>
+            <h1>⚡ EVL v2.0 Enhanced</h1>
+            <p>EV Charger Location Analyzer - Complete Business Intelligence</p>
         </div>
 
         <!-- Input Card -->
@@ -542,36 +710,146 @@
                 </div>
             </div>
 
-            <!-- Score Cards -->
+            <!-- Score Cards with Details -->
             <div class="card">
                 <h2 style="margin-bottom: 20px; color: #333;">📊 Location Scores</h2>
                 <div class="score-grid">
-                    <div class="score-card">
+                    <!-- Demand Score -->
+                    <div class="score-card" onclick="toggleDetails('demand')">
                         <h3>Demand</h3>
                         <div class="score-value score-good" id="demandScore">72</div>
                         <div class="score-label" id="demandLabel">Good</div>
+                        <p class="score-interpretation" id="demandInterpretation">Good EV presence and traffic</p>
+                        <button class="expand-btn" onclick="event.stopPropagation(); toggleDetails('demand')">Show Details ▼</button>
+                        
+                        <div class="details-section" id="demandDetails">
+                            <div class="detail-row">
+                                <span class="detail-label">EV Density</span>
+                                <span class="detail-value" id="evDensity">35.2 per 1000 cars</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Population Density</span>
+                                <span class="detail-value" id="popDensity">8,500/km²</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">EV Growth (YoY)</span>
+                                <span class="detail-value" id="evGrowth">28.5%</span>
+                            </div>
+                            
+                            <h4 style="margin: 15px 0 10px 0; color: #333;">Projected Sessions/Day</h4>
+                            <div class="sessions-range" id="sessionsRange">
+                                <div class="session-estimate">
+                                    <div class="label">Conservative</div>
+                                    <div class="value" id="sessionsLow">12.3</div>
+                                </div>
+                                <div class="session-estimate central">
+                                    <div class="label">Expected</div>
+                                    <div class="value" id="sessionsCentral">17.6</div>
+                                </div>
+                                <div class="session-estimate">
+                                    <div class="label">Optimistic</div>
+                                    <div class="value" id="sessionsHigh">24.6</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="score-card">
+
+                    <!-- Competition Score -->
+                    <div class="score-card" onclick="toggleDetails('competition')">
                         <h3>Competition</h3>
                         <div class="score-value score-excellent" id="competitionScore">95</div>
                         <div class="score-label" id="competitionLabel">Minimal</div>
+                        <p class="score-interpretation" id="competitionInterpretation">Excellent market opportunity</p>
+                        <button class="expand-btn" onclick="event.stopPropagation(); toggleDetails('competition')">Show Details ▼</button>
+                        
+                        <div class="details-section" id="competitionDetails">
+                            <div class="detail-row">
+                                <span class="detail-label">Total Chargers</span>
+                                <span class="detail-value" id="totalChargers">100</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Fast DC (≥100kW)</span>
+                                <span class="detail-value" id="fastDCChargers">0</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">AC Only</span>
+                                <span class="detail-value" id="acChargers">100</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Competition Index</span>
+                                <span class="detail-value" id="competitionIndex">0.15 (low)</span>
+                            </div>
+                            
+                            <div style="margin-top: 15px; padding: 12px; background: white; border-radius: 6px; border-left: 3px solid #10b981;">
+                                <strong>Gap Analysis:</strong>
+                                <p id="gapAnalysis" style="margin-top: 5px; color: #666; font-size: 0.9em;">
+                                    No fast DC chargers within radius - strong opportunity
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="score-card">
+
+                    <!-- Grid Score -->
+                    <div class="score-card" onclick="toggleDetails('grid')">
                         <h3>Grid Feasibility</h3>
                         <div class="score-value score-moderate" id="gridScore">60</div>
                         <div class="score-label" id="gridLabel">Feasible</div>
+                        <p class="score-interpretation" id="gridInterpretation">Standard connection process</p>
+                        <button class="expand-btn" onclick="event.stopPropagation(); toggleDetails('grid')">Show Details ▼</button>
+                        
+                        <div class="details-section" id="gridDetails">
+                            <div class="detail-row">
+                                <span class="detail-label">Substation Distance</span>
+                                <span class="detail-value" id="substationDistance">1.5 km</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Connection Cost</span>
+                                <span class="detail-value" id="gridConnectionCost">£15,000</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Cost Category</span>
+                                <span class="detail-value" id="connectionCostCategory">LOW</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Capacity</span>
+                                <span class="detail-value" id="gridCapacity">High</span>
+                            </div>
+                            
+                            <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 6px;">
+                                <p style="font-size: 0.85em; color: #666;" id="gridAssumptions">
+                                    ⓘ Grid connection costs are estimates - DNO quote required
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="score-card">
-                        <h3>Overall</h3>
-                        <div class="score-value score-good" id="overallScoreCard">68</div>
-                        <div class="score-label" id="overallLabel">Good</div>
+
+                    <!-- Parking & Facilities Score (NEW!) -->
+                    <div class="score-card" onclick="toggleDetails('parking')">
+                        <h3>Parking & Facilities</h3>
+                        <div class="score-value score-moderate" id="parkingScore">60</div>
+                        <div class="score-label" id="parkingLabel">Moderate</div>
+                        <p class="score-interpretation">Adequate parking available</p>
+                        <button class="expand-btn" onclick="event.stopPropagation(); toggleDetails('parking')">Show Details ▼</button>
+                        
+                        <div class="details-section" id="parkingDetails">
+                            <div class="detail-row">
+                                <span class="detail-label">Parking Spaces</span>
+                                <span class="detail-value" id="parkingSpaces">50</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Nearby Facilities</span>
+                                <span class="detail-value" id="facilitiesCount">8</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Financial Summary -->
+            <!-- Financial Summary with Tabs -->
             <div class="card">
-                <h2 style="margin-bottom: 20px; color: #333;">💰 Financial Projections</h2>
+                <h2 style="margin-bottom: 20px; color: #333;">💰 Complete Financial Analysis</h2>
+                
+                <!-- Summary Cards -->
                 <div class="financial-grid">
                     <div class="financial-item">
                         <div class="label">Total Investment</div>
@@ -595,9 +873,113 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+                <div style="margin: 20px 0; padding: 15px; background: #f0f9ff; border-radius: 8px;">
                     <p id="financialSummary" style="color: #0369a1; font-weight: 500; text-align: center;">
                         ✅ Good financials: 5.8 year payback, £1,500/month revenue
+                    </p>
+                </div>
+
+                <!-- Detailed Breakdowns (Tabs) -->
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('capexTab')">CAPEX Breakdown</button>
+                    <button class="tab" onclick="showTab('revenueTab')">Revenue Projections</button>
+                    <button class="tab" onclick="showTab('opexTab')">Operating Costs</button>
+                </div>
+
+                <!-- CAPEX Tab -->
+                <div class="tab-content active" id="capexTab">
+                    <table class="breakdown-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th class="value">Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Charger Hardware</td>
+                                <td class="value" id="capexHardware">£160,000</td>
+                            </tr>
+                            <tr>
+                                <td>Installation & Civil Works</td>
+                                <td class="value" id="capexInstallation">£32,000</td>
+                            </tr>
+                            <tr>
+                                <td>Grid Connection</td>
+                                <td class="value" id="capexGrid">£15,000</td>
+                            </tr>
+                            <tr>
+                                <td>Other & Contingency (5%)</td>
+                                <td class="value" id="capexOther">£10,000</td>
+                            </tr>
+                            <tr class="total">
+                                <td><strong>Total CAPEX</strong></td>
+                                <td class="value" id="capexTotal"><strong>£217,000</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Revenue Tab -->
+                <div class="tab-content" id="revenueTab">
+                    <table class="breakdown-table">
+                        <tbody>
+                            <tr>
+                                <td>Sessions per Day</td>
+                                <td class="value" id="revSessions">17.6</td>
+                            </tr>
+                            <tr>
+                                <td>Avg kWh per Session</td>
+                                <td class="value" id="revKwhSession">30 kWh</td>
+                            </tr>
+                            <tr>
+                                <td>Charging Tariff</td>
+                                <td class="value" id="revTariff">£0.50/kWh</td>
+                            </tr>
+                            <tr>
+                                <td>Energy Cost</td>
+                                <td class="value" id="revEnergyCost">£0.20/kWh</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gross Margin per kWh</strong></td>
+                                <td class="value" id="revGrossMargin"><strong>£0.30 (60%)</strong></td>
+                            </tr>
+                            <tr style="background: #f0f9ff;">
+                                <td><strong>Monthly Revenue</strong></td>
+                                <td class="value" id="revMonthly"><strong>£8,200</strong></td>
+                            </tr>
+                            <tr class="total">
+                                <td><strong>Annual Revenue</strong></td>
+                                <td class="value" id="revAnnual"><strong>£98,400</strong></td>
+                            </tr>
+                            <tr class="total">
+                                <td><strong>Annual Gross Margin</strong></td>
+                                <td class="value" id="revGrossAnnual"><strong>£59,040</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- OPEX Tab -->
+                <div class="tab-content" id="opexTab">
+                    <table class="breakdown-table">
+                        <tbody>
+                            <tr>
+                                <td>Energy Costs (Annual)</td>
+                                <td class="value" id="opexEnergy">£12,000</td>
+                            </tr>
+                            <tr>
+                                <td>Fixed Costs (Annual)</td>
+                                <td class="value" id="opexFixed">£6,000</td>
+                            </tr>
+                            <tr class="total">
+                                <td><strong>Total OPEX (Annual)</strong></td>
+                                <td class="value" id="opexTotal"><strong>£18,000</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
+                        ⓘ Fixed costs include: rent, maintenance, connectivity, insurance, and other recurring expenses
                     </p>
                 </div>
             </div>
@@ -659,6 +1041,25 @@
         function toggleDataSources() {
             const sourcesDiv = document.getElementById('dataSources');
             sourcesDiv.classList.toggle('active');
+        }
+
+        function toggleDetails(section) {
+            const detailsDiv = document.getElementById(section + 'Details');
+            detailsDiv.classList.toggle('active');
+        }
+
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
         }
 
         async function analyzeLocation() {
@@ -746,13 +1147,53 @@
                 reasonsList.appendChild(li);
             });
 
-            // Score Cards
-            displayScore('demand', data.scores.demand);
-            displayScore('competition', data.scores.competition);
-            displayScore('grid', data.scores.grid_feasibility);
-            displayScore('overallScoreCard', data.scores.overall);
+            // Score Cards with Details
+            displayScore('demand', data.scores.demand, data.demand_block.demand_interpretation);
+            displayScore('competition', data.scores.competition, data.competition_block.gap_analysis);
+            displayScore('grid', data.scores.grid_feasibility, 'Grid feasibility analysis');
+            displayScore('parking', data.scores.parking_facilities, 'Parking and facilities assessment');
 
-            // Financials
+            // Demand Details
+            document.getElementById('evDensity').textContent = 
+                data.demand_block.ev_density_per_1000_cars.toFixed(1) + ' per 1000 cars';
+            document.getElementById('popDensity').textContent = 
+                Math.round(data.demand_block.population_density_per_km2).toLocaleString() + '/km²';
+            document.getElementById('evGrowth').textContent = 
+                data.demand_block.ev_growth_yoy_percent.toFixed(1) + '%';
+            
+            // Sessions Range
+            document.getElementById('sessionsLow').textContent = 
+                data.demand_block.estimated_sessions_per_day.low.toFixed(1);
+            document.getElementById('sessionsCentral').textContent = 
+                data.demand_block.estimated_sessions_per_day.central.toFixed(1);
+            document.getElementById('sessionsHigh').textContent = 
+                data.demand_block.estimated_sessions_per_day.high.toFixed(1);
+
+            // Competition Details
+            document.getElementById('totalChargers').textContent = data.competition_block.total_stations;
+            document.getElementById('fastDCChargers').textContent = data.competition_block.fast_dc_stations;
+            document.getElementById('acChargers').textContent = data.competition_block.ac_only_stations;
+            document.getElementById('competitionIndex').textContent = 
+                data.competition_block.competition_index.toFixed(2) + ' (low)';
+            document.getElementById('gapAnalysis').textContent = data.competition_block.gap_analysis;
+
+            // Grid Details
+            document.getElementById('substationDistance').textContent = 
+                data.grid_block.nearest_substation_distance_km.toFixed(1) + ' km';
+            document.getElementById('gridConnectionCost').textContent = 
+                '£' + Math.round(data.grid_block.estimated_connection_cost_gbp).toLocaleString();
+            document.getElementById('connectionCostCategory').textContent = 
+                data.grid_block.connection_cost_category;
+            document.getElementById('gridCapacity').textContent = 
+                data.grid_block.capacity_category.charAt(0).toUpperCase() + data.grid_block.capacity_category.slice(1);
+            document.getElementById('gridAssumptions').textContent = 
+                'ⓘ ' + data.grid_block.assumptions[data.grid_block.assumptions.length - 1];
+
+            // Parking Details
+            document.getElementById('parkingSpaces').textContent = '~' + data.grid_block.assumptions.find(a => a.includes('parking'))?.match(/\d+/)?.[0] || '50';
+            document.getElementById('facilitiesCount').textContent = '8'; // Estimated
+
+            // Financials Summary
             document.getElementById('capex').textContent = 
                 `£${Math.round(data.financials.capex.total_capex).toLocaleString()}`;
             document.getElementById('monthlyRevenue').textContent = 
@@ -777,6 +1218,45 @@
             }
 
             document.getElementById('financialSummary').textContent = data.financials.financial_summary;
+
+            // CAPEX Breakdown
+            document.getElementById('capexHardware').textContent = 
+                '£' + Math.round(data.financials.capex.charger_hardware).toLocaleString();
+            document.getElementById('capexInstallation').textContent = 
+                '£' + Math.round(data.financials.capex.installation_and_civils).toLocaleString();
+            document.getElementById('capexGrid').textContent = 
+                '£' + Math.round(data.financials.capex.grid_connection).toLocaleString();
+            document.getElementById('capexOther').textContent = 
+                '£' + Math.round(data.financials.capex.other).toLocaleString();
+            document.getElementById('capexTotal').textContent = 
+                '£' + Math.round(data.financials.capex.total_capex).toLocaleString();
+
+            // Revenue Breakdown
+            document.getElementById('revSessions').textContent = 
+                data.financials.revenue.sessions_per_day.toFixed(1);
+            document.getElementById('revKwhSession').textContent = 
+                data.financials.revenue.avg_kwh_per_session.toFixed(0) + ' kWh';
+            document.getElementById('revTariff').textContent = 
+                '£' + data.financials.revenue.tariff_per_kwh.toFixed(2) + '/kWh';
+            document.getElementById('revEnergyCost').textContent = 
+                '£' + data.financials.revenue.energy_cost_per_kwh.toFixed(2) + '/kWh';
+            const marginPercent = (data.financials.revenue.gross_margin_per_kwh / data.financials.revenue.tariff_per_kwh * 100).toFixed(0);
+            document.getElementById('revGrossMargin').textContent = 
+                '£' + data.financials.revenue.gross_margin_per_kwh.toFixed(2) + ' (' + marginPercent + '%)';
+            document.getElementById('revMonthly').textContent = 
+                '£' + Math.round(data.financials.revenue.monthly_revenue).toLocaleString();
+            document.getElementById('revAnnual').textContent = 
+                '£' + Math.round(data.financials.revenue.annual_revenue).toLocaleString();
+            document.getElementById('revGrossAnnual').textContent = 
+                '£' + Math.round(data.financials.revenue.annual_gross_margin).toLocaleString();
+
+            // OPEX Breakdown
+            document.getElementById('opexEnergy').textContent = 
+                '£' + Math.round(data.financials.opex.energy_cost_per_year).toLocaleString();
+            document.getElementById('opexFixed').textContent = 
+                '£' + Math.round(data.financials.opex.other_fixed_costs_per_year).toLocaleString();
+            document.getElementById('opexTotal').textContent = 
+                '£' + Math.round(data.financials.opex.total_opex_per_year).toLocaleString();
 
             // Recommendation
             const config = data.recommended_configuration.primary;
@@ -822,11 +1302,15 @@
             }
         }
 
-        function displayScore(elementId, score) {
-            const scoreElement = document.getElementById(elementId + 'Score') || document.getElementById(elementId);
+        function displayScore(elementId, score, interpretation) {
+            const scoreElement = document.getElementById(elementId + 'Score');
             const labelElement = document.getElementById(elementId + 'Label');
+            const interpElement = document.getElementById(elementId + 'Interpretation');
 
             scoreElement.textContent = score;
+            if (interpElement && interpretation) {
+                interpElement.textContent = interpretation.substring(0, 50) + '...';
+            }
 
             // Color coding
             let colorClass, label;
