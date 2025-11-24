@@ -746,31 +746,50 @@ async function sendToBackend() {
     // This would send to your actual backend
     const API_URL = 'https://web-production-e0c85.up.railway.app/api/v2/analyze-location';
     
-    if (confirm('Send configuration to analysis engine?')) {
-        try {
-            // Transform schema to backend format
-            const backendPayload = transformToBackendFormat(generatedSchema);
+    // Show analysis results section
+    const resultsCard = document.getElementById('analysisResults');
+    const loadingDiv = document.getElementById('analysisLoading');
+    const contentDiv = document.getElementById('analysisContent');
+    
+    resultsCard.style.display = 'block';
+    loadingDiv.style.display = 'block';
+    contentDiv.style.display = 'none';
+    
+    // Scroll to results
+    resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    try {
+        // Transform schema to backend format
+        const backendPayload = transformToBackendFormat(generatedSchema);
+        
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(backendPayload)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
             
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(backendPayload)
-            });
+            // Hide loading, show results
+            loadingDiv.style.display = 'none';
+            contentDiv.style.display = 'block';
             
-            if (response.ok) {
-                const result = await response.json();
-                alert('✅ Analysis complete! Check console for results.');
-                console.log('Analysis Result:', result);
-                
-                // You could redirect to results page here
-                // window.location.href = '/results?id=' + result.id;
-            } else {
-                throw new Error(`HTTP ${response.status}`);
-            }
-        } catch (error) {
-            alert('❌ Failed to send to backend: ' + error.message);
-            console.error('Backend error:', error);
+            // Display results in UI
+            displayAnalysisResults(result);
+            
+            console.log('✅ Analysis complete!', result);
+        } else {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
+    } catch (error) {
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+        
+        // Show error in UI
+        displayErrorResults(error.message);
+        console.error('Backend error:', error);
     }
 }
 
@@ -797,6 +816,398 @@ function transformToBackendFormat(schema) {
             include_raw_sources: true
         }
     };
+}
+
+// ============================================================================
+// RESULTS DISPLAY FUNCTIONS
+// ============================================================================
+
+function displayAnalysisResults(data) {
+    console.log('Displaying results:', data);
+    
+    // Store for later use
+    window.analysisData = data;
+    
+    // Hero Verdict
+    displayHeroVerdict(data);
+    
+    // Score Cards
+    displayScoreCards(data);
+    
+    // Financial Summary
+    displayFinancialSummary(data);
+    
+    // Competition Analysis
+    displayCompetitionAnalysis(data);
+    
+    // Financial Details
+    displayFinancialDetails(data);
+    
+    // Recommendations
+    displayRecommendations(data);
+    
+    // Raw Data
+    displayRawData(data);
+}
+
+function displayHeroVerdict(data) {
+    const verdict = data.verdict || 'Unknown';
+    const score = data.overall_score || 0;
+    const headline = data.summary?.headline_recommendation || '';
+    
+    // Set verdict styling
+    const heroDiv = document.getElementById('heroVerdict');
+    const emojiSpan = document.getElementById('verdictEmoji');
+    const textH2 = document.getElementById('verdictText');
+    const subtextP = document.getElementById('verdictSubtext');
+    const scoreSpan = document.getElementById('overallScore');
+    
+    // Verdict-specific styling
+    if (verdict === 'Strongly Recommended' || verdict === 'Recommended') {
+        heroDiv.style.background = 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+        emojiSpan.textContent = '✅';
+        textH2.style.color = '#065f46';
+    } else if (verdict === 'Conditional' || verdict === 'Consider with Caution') {
+        heroDiv.style.background = 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+        emojiSpan.textContent = '⚠️';
+        textH2.style.color = '#92400e';
+    } else {
+        heroDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+        emojiSpan.textContent = '❌';
+        textH2.style.color = '#991b1b';
+    }
+    
+    textH2.textContent = verdict;
+    subtextP.textContent = headline;
+    scoreSpan.textContent = score;
+}
+
+function displayScoreCards(data) {
+    // Demand
+    const demandScore = data.demand?.score || 0;
+    document.getElementById('demandScore').textContent = demandScore;
+    document.getElementById('demandLabel').textContent = getScoreLabel(demandScore);
+    document.getElementById('demandScore').style.color = getScoreColor(demandScore);
+    
+    const demandDetails = [];
+    if (data.demand?.ev_density_per_1000_cars) {
+        demandDetails.push(`EV Density: ${data.demand.ev_density_per_1000_cars.toFixed(1)}/1000`);
+    }
+    if (data.demand?.avg_daily_traffic) {
+        demandDetails.push(`Daily Traffic: ${data.demand.avg_daily_traffic.toLocaleString()}`);
+    }
+    document.getElementById('demandDetails').innerHTML = demandDetails.join('<br>');
+    
+    // Competition
+    const compScore = data.competition?.score || 0;
+    document.getElementById('competitionScore').textContent = compScore;
+    document.getElementById('competitionLabel').textContent = getScoreLabel(compScore);
+    document.getElementById('competitionScore').style.color = getScoreColor(compScore);
+    
+    const compDetails = [];
+    if (data.competition?.nearby_chargers !== undefined) {
+        compDetails.push(`Nearby Chargers: ${data.competition.nearby_chargers}`);
+    }
+    if (data.competition?.competition_density !== undefined) {
+        compDetails.push(`Density: ${data.competition.competition_density.toFixed(2)}/km²`);
+    }
+    document.getElementById('competitionDetails').innerHTML = compDetails.join('<br>');
+    
+    // Grid
+    const gridScore = data.grid?.score || 0;
+    document.getElementById('gridScore').textContent = gridScore;
+    document.getElementById('gridLabel').textContent = getScoreLabel(gridScore);
+    document.getElementById('gridScore').style.color = getScoreColor(gridScore);
+    
+    const gridDetails = [];
+    if (data.grid?.required_capacity_kw) {
+        gridDetails.push(`Required: ${data.grid.required_capacity_kw} kW`);
+    }
+    if (data.grid?.feasibility_status) {
+        gridDetails.push(`Status: ${data.grid.feasibility_status}`);
+    }
+    document.getElementById('gridDetails').innerHTML = gridDetails.join('<br>');
+    
+    // Confidence
+    const confidence = Math.round((data.confidence || 0) * 100);
+    document.getElementById('confidenceScore').textContent = confidence + '%';
+    document.getElementById('confidenceScore').style.color = confidence >= 80 ? '#10b981' : confidence >= 60 ? '#f59e0b' : '#dc2626';
+    
+    const confDetails = [];
+    if (data.data_quality_score) {
+        confDetails.push(`Quality Score: ${data.data_quality_score}/10`);
+    }
+    document.getElementById('confidenceDetails').innerHTML = confDetails.join('<br>');
+}
+
+function displayFinancialSummary(data) {
+    const financials = data.financials || {};
+    
+    document.getElementById('totalCapex').textContent = financials.capex || '€0';
+    document.getElementById('annualRevenue').textContent = financials.annual_revenue || '€0';
+    
+    const profit = financials.annual_profit || '€0';
+    const profitEl = document.getElementById('annualProfit');
+    profitEl.textContent = profit;
+    profitEl.style.color = profit.includes('-') ? '#dc2626' : '#10b981';
+    
+    const roiValue = financials.roi || '0%';
+    const roiEl = document.getElementById('roi');
+    roiEl.textContent = roiValue;
+    roiEl.style.color = roiValue.includes('-') ? '#dc2626' : '#10b981';
+    
+    const payback = financials.payback_years || 'N/A';
+    document.getElementById('payback').textContent = payback === 999 || payback === '999' ? 'Not viable' : payback;
+}
+
+function displayCompetitionAnalysis(data) {
+    const div = document.getElementById('competitionAnalysis');
+    
+    let html = '<div style="background: white; padding: 20px; border-radius: 8px;">';
+    html += '<h3 style="color: #333; margin-bottom: 20px;">🏆 Competition Breakdown</h3>';
+    
+    // Nearby chargers
+    if (data.competition?.nearby_chargers !== undefined) {
+        html += `<div style="margin-bottom: 20px;">
+            <strong>Total Nearby Chargers:</strong> ${data.competition.nearby_chargers} 
+            <span style="color: #666;">(within ${data.location?.radius_km || 1}km)</span>
+        </div>`;
+    }
+    
+    // Power level breakdown
+    if (data.competitive_gaps?.power_level_analysis) {
+        html += '<h4 style="color: #667eea; margin: 20px 0 10px 0;">Power Level Analysis</h4>';
+        html += '<table style="width: 100%; border-collapse: collapse;">';
+        html += '<tr style="background: #f8f9fa;"><th style="padding: 10px; text-align: left;">Power Level</th><th style="padding: 10px; text-align: center;">Existing Chargers</th><th style="padding: 10px; text-align: center;">Gap</th><th style="padding: 10px; text-align: left;">Status</th></tr>';
+        
+        for (const [power, analysis] of Object.entries(data.competitive_gaps.power_level_analysis)) {
+            const gapColor = analysis.gap_percentage > 50 ? '#10b981' : analysis.gap_percentage > 0 ? '#f59e0b' : '#dc2626';
+            const status = analysis.is_blue_ocean ? '🌊 Blue Ocean' : analysis.gap_percentage > 0 ? '📈 Opportunity' : '🚫 Saturated';
+            
+            html += `<tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 10px;"><strong>${power} kW</strong></td>
+                <td style="padding: 10px; text-align: center;">${analysis.existing_chargers}</td>
+                <td style="padding: 10px; text-align: center; color: ${gapColor}; font-weight: 600;">${analysis.gap_percentage.toFixed(0)}%</td>
+                <td style="padding: 10px;">${status}</td>
+            </tr>`;
+        }
+        
+        html += '</table>';
+    }
+    
+    // Blue Ocean opportunities
+    if (data.blue_ocean_opportunities && data.blue_ocean_opportunities.length > 0) {
+        html += '<h4 style="color: #667eea; margin: 20px 0 10px 0;">🌊 Blue Ocean Opportunities</h4>';
+        html += '<div style="background: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">';
+        data.blue_ocean_opportunities.forEach(opp => {
+            html += `<p style="margin-bottom: 10px;"><strong>${opp.power_kw} kW:</strong> ${opp.description}</p>`;
+        });
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    div.innerHTML = html;
+}
+
+function displayFinancialDetails(data) {
+    const div = document.getElementById('financialDetails');
+    const financials = data.financials || {};
+    
+    let html = '<div style="background: white; padding: 20px; border-radius: 8px;">';
+    html += '<h3 style="color: #333; margin-bottom: 20px;">💰 Detailed Financial Breakdown</h3>';
+    
+    // CAPEX
+    html += '<div style="margin-bottom: 30px;">';
+    html += '<h4 style="color: #667eea; margin-bottom: 15px;">Capital Expenditure (CAPEX)</h4>';
+    html += '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">';
+    html += `<p><strong>Total CAPEX:</strong> ${financials.capex || '€0'}</p>`;
+    if (financials.capex_breakdown) {
+        for (const [key, value] of Object.entries(financials.capex_breakdown)) {
+            html += `<p style="color: #666; margin-left: 20px;">• ${key}: ${value}</p>`;
+        }
+    }
+    html += '</div></div>';
+    
+    // OPEX
+    html += '<div style="margin-bottom: 30px;">';
+    html += '<h4 style="color: #667eea; margin-bottom: 15px;">Operating Expenditure (OPEX)</h4>';
+    html += '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">';
+    html += `<p><strong>Monthly OPEX:</strong> ${financials.monthly_opex || '€0'}</p>`;
+    html += `<p><strong>Annual OPEX:</strong> ${financials.annual_opex || '€0'}</p>`;
+    if (financials.opex_breakdown) {
+        for (const [key, value] of Object.entries(financials.opex_breakdown)) {
+            html += `<p style="color: #666; margin-left: 20px;">• ${key}: ${value}</p>`;
+        }
+    }
+    html += '</div></div>';
+    
+    // Revenue
+    html += '<div style="margin-bottom: 30px;">';
+    html += '<h4 style="color: #667eea; margin-bottom: 15px;">Revenue Projections</h4>';
+    html += '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">';
+    
+    if (data.session_projections) {
+        html += '<p style="margin-bottom: 10px;"><strong>Expected Sessions per Day:</strong></p>';
+        html += `<p style="margin-left: 20px;">• Low: ${data.session_projections.low_sessions}/day</p>`;
+        html += `<p style="margin-left: 20px;">• Central: ${data.session_projections.central_sessions}/day</p>`;
+        html += `<p style="margin-left: 20px;">• High: ${data.session_projections.high_sessions}/day</p>`;
+    }
+    
+    html += `<p style="margin-top: 15px;"><strong>Annual Revenue:</strong> ${financials.annual_revenue || '€0'}</p>`;
+    html += `<p><strong>Annual Profit:</strong> <span style="color: ${(financials.annual_profit || '').includes('-') ? '#dc2626' : '#10b981'}; font-weight: 600;">${financials.annual_profit || '€0'}</span></p>`;
+    html += '</div></div>';
+    
+    // ROI Metrics
+    html += '<div>';
+    html += '<h4 style="color: #667eea; margin-bottom: 15px;">ROI Metrics</h4>';
+    html += '<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">';
+    html += `<p><strong>ROI:</strong> ${financials.roi || '0%'}</p>`;
+    html += `<p><strong>Payback Period:</strong> ${financials.payback_years === 999 ? 'Not viable' : financials.payback_years || 'N/A'}</p>`;
+    html += `<p><strong>NPV (5 years):</strong> ${financials.npv_5_years || '€0'}</p>`;
+    html += '</div></div>';
+    
+    html += '</div>';
+    div.innerHTML = html;
+}
+
+function displayRecommendations(data) {
+    const div = document.getElementById('recommendationsContent');
+    
+    let html = '<div style="background: white; padding: 20px; border-radius: 8px;">';
+    
+    // Key Recommendations
+    if (data.recommendations && data.recommendations.length > 0) {
+        html += '<h3 style="color: #333; margin-bottom: 20px;">📋 Key Recommendations</h3>';
+        html += '<ul style="list-style: none; padding: 0;">';
+        data.recommendations.forEach(rec => {
+            html += `<li style="background: #f8f9fa; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #667eea;">
+                ${rec}
+            </li>`;
+        });
+        html += '</ul>';
+    }
+    
+    // Strategic Opportunities
+    if (data.strategic_opportunities && data.strategic_opportunities.length > 0) {
+        html += '<h3 style="color: #333; margin: 30px 0 20px 0;">🎯 Strategic Opportunities</h3>';
+        data.strategic_opportunities.forEach(opp => {
+            html += `<div style="background: #f0fdf4; padding: 20px; margin-bottom: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
+                <h4 style="color: #065f46; margin-bottom: 10px;">${opp.title || opp.opportunity}</h4>
+                <p style="color: #064e3b; margin-bottom: 10px;">${opp.description || opp.rationale}</p>
+                ${opp.action_plan ? `<p style="color: #065f46;"><strong>Action:</strong> ${opp.action_plan}</p>` : ''}
+            </div>`;
+        });
+    }
+    
+    // Risks
+    if (data.risks && data.risks.length > 0) {
+        html += '<h3 style="color: #333; margin: 30px 0 20px 0;">⚠️ Potential Risks</h3>';
+        html += '<ul style="list-style: none; padding: 0;">';
+        data.risks.forEach(risk => {
+            html += `<li style="background: #fef3c7; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                ${risk}
+            </li>`;
+        });
+        html += '</ul>';
+    }
+    
+    // Next Steps
+    if (data.next_steps && data.next_steps.length > 0) {
+        html += '<h3 style="color: #333; margin: 30px 0 20px 0;">👉 Next Steps</h3>';
+        html += '<ol style="padding-left: 20px;">';
+        data.next_steps.forEach(step => {
+            html += `<li style="margin-bottom: 10px; color: #333;">${step}</li>`;
+        });
+        html += '</ol>';
+    }
+    
+    html += '</div>';
+    div.innerHTML = html;
+}
+
+function displayRawData(data) {
+    document.getElementById('rawDataOutput').textContent = JSON.stringify(data, null, 2);
+}
+
+function displayErrorResults(errorMessage) {
+    const heroDiv = document.getElementById('heroVerdict');
+    heroDiv.innerHTML = `
+        <div style="font-size: 4em; margin-bottom: 15px;">❌</div>
+        <h2 style="font-size: 2em; margin-bottom: 10px; color: #991b1b;">Analysis Failed</h2>
+        <p style="font-size: 1.2em; opacity: 0.9; color: #991b1b;">${errorMessage}</p>
+        <div style="margin-top: 20px;">
+            <button class="btn-secondary" onclick="resetAndStartNew()">Try Again</button>
+        </div>
+    `;
+    heroDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+}
+
+function getScoreLabel(score) {
+    if (score >= 80) return 'Excellent';
+    if (score >= 60) return 'Good';
+    if (score >= 40) return 'Fair';
+    if (score >= 20) return 'Weak';
+    return 'Poor';
+}
+
+function getScoreColor(score) {
+    if (score >= 80) return '#10b981';
+    if (score >= 60) return '#3b82f6';
+    if (score >= 40) return '#f59e0b';
+    if (score >= 20) return '#f97316';
+    return '#dc2626';
+}
+
+function showResultTab(tabId) {
+    // Hide all result tabs
+    document.querySelectorAll('#analysisContent .tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active from all tabs
+    document.querySelectorAll('#analysisContent .tabs .tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function copyRawData() {
+    const jsonText = document.getElementById('rawDataOutput').textContent;
+    navigator.clipboard.writeText(jsonText).then(() => {
+        alert('✅ Raw data copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard. Please copy manually.');
+    });
+}
+
+function exportPDF() {
+    alert('📄 PDF export feature coming soon! For now, use browser print (Ctrl/Cmd+P)');
+    window.print();
+}
+
+function resetAndStartNew() {
+    if (confirm('Start a new analysis? Current results will be lost.')) {
+        document.getElementById('analysisResults').style.display = 'none';
+        document.getElementById('outputCard').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function shareResults() {
+    if (window.analysisData) {
+        const shareUrl = `${window.location.origin}${window.location.pathname}?results=${btoa(JSON.stringify(window.analysisData))}`;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert('✅ Share link copied to clipboard!');
+        }).catch(() => {
+            alert('Share feature: Copy this URL to share results\n\n' + shareUrl);
+        });
+    } else {
+        alert('No results to share');
+    }
 }
 
 // ============================================================================
