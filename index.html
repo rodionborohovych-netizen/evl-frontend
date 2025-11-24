@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVL v2.0 - EV Charger Location Analyzer - Fixed</title>
+    <title>EVL v2.0 - EV Charger Location Analyzer - Full Featured</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -33,6 +33,11 @@
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
         }
 
         .card {
@@ -59,6 +64,7 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: #333;
+            font-size: 0.9em;
         }
 
         .input-group input {
@@ -66,6 +72,12 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
         .analyze-btn {
@@ -78,6 +90,7 @@
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .analyze-btn:hover {
@@ -85,6 +98,12 @@
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Hero Summary Section */
         .hero-summary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -101,14 +120,58 @@
             font-size: 1.5em;
             font-weight: 700;
             margin-bottom: 20px;
+            animation: fadeIn 0.5s;
         }
 
-        .score {
+        .verdict-Strong { background: #10b981; }
+        .verdict-Moderate { background: #f59e0b; }
+        .verdict-Marginal { background: #ef4444; }
+        .verdict-Not { background: #dc2626; }
+
+        .hero-summary h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .hero-summary .score {
             font-size: 3em;
             font-weight: 700;
             margin: 20px 0;
         }
 
+        .key-reasons {
+            text-align: left;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .key-reasons h3 {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .key-reasons ul {
+            list-style: none;
+        }
+
+        .key-reasons li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.1em;
+        }
+
+        .key-reasons li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        /* Score Cards */
         .score-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -122,6 +185,20 @@
             padding: 25px;
             text-align: center;
             border: 2px solid #e0e0e0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .score-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .score-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
         }
 
         .score-value {
@@ -130,11 +207,129 @@
             margin: 10px 0;
         }
 
+        .score-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
         .score-excellent { color: #10b981; }
         .score-good { color: #22c55e; }
         .score-moderate { color: #f59e0b; }
         .score-weak { color: #ef4444; }
 
+        /* Financial Summary */
+        .financial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .financial-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .financial-item .label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .financial-item .value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .financial-item .sublabel {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Recommendations */
+        .recommendation-box {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .recommendation-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .recommendation-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .recommendation-box li {
+            padding: 8px 0;
+            font-size: 1.05em;
+        }
+
+        /* Next Steps */
+        .next-steps {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .next-steps h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .next-steps ol {
+            padding-left: 25px;
+        }
+
+        .next-steps li {
+            padding: 10px 0;
+            font-size: 1.05em;
+            color: #555;
+        }
+
+        /* Risks */
+        .risks {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .risks h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .risks ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .risks li {
+            padding: 8px 0;
+            color: #856404;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .risks li:before {
+            content: "⚠";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Loading */
         .loading {
             text-align: center;
             padding: 40px;
@@ -160,14 +355,21 @@
             100% { transform: rotate(360deg); }
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .results {
             display: none;
+            animation: fadeIn 0.5s;
         }
 
         .results.active {
             display: block;
         }
 
+        /* Error */
         .error {
             background: #fee;
             border: 2px solid #fcc;
@@ -181,111 +383,266 @@
             display: block;
         }
 
-        pre {
-            background: #f5f5f5;
+        /* Info boxes */
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
             padding: 15px;
             border-radius: 8px;
-            overflow-x: auto;
-            font-size: 0.9em;
+            margin: 15px 0;
+        }
+
+        .info-box strong {
+            color: #0369a1;
+        }
+
+        /* Opportunity Cards */
+        .opportunity-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .opportunity-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .opportunity-card .priority-high {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .opportunity-card ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .opportunity-card li {
+            color: #666;
+            padding: 5px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .hero-summary {
+                padding: 25px;
+            }
+
+            .score-value {
+                font-size: 2.5em;
+            }
+
+            .input-section {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>⚡ EVL v2.0 - Fixed</h1>
-            <p>EV Charger Location Analyzer</p>
+            <h1>⚡ EVL v2.0</h1>
+            <p>EV Charger Location Analyzer - Complete Business Intelligence</p>
         </div>
 
+        <!-- Input Card -->
         <div class="card">
-            <h2 style="margin-bottom: 20px;">📍 Location Analysis</h2>
+            <h2 style="margin-bottom: 20px; color: #333;">📍 Location Analysis</h2>
             
             <div class="input-section">
                 <div class="input-group">
                     <label for="postcode">Postcode</label>
-                    <input type="text" id="postcode" value="NW6 7SD">
+                    <input type="text" id="postcode" placeholder="e.g., NW6 7SD" value="NW6 7SD">
                 </div>
 
                 <div class="input-group">
-                    <label for="radius">Radius (km)</label>
+                    <label for="radius">Search Radius (km)</label>
                     <input type="number" id="radius" value="1" min="0.5" max="10" step="0.5">
                 </div>
             </div>
 
             <button class="analyze-btn" onclick="analyzeLocation()">
-                🚀 Analyze Location
+                🚀 Analyze Location & Calculate ROI
             </button>
         </div>
 
+        <!-- Loading -->
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="color: white; font-size: 1.2em;">Analyzing...</p>
+            <p style="color: white; font-size: 1.2em;">Analyzing location...</p>
         </div>
 
+        <!-- Error -->
         <div class="error" id="error">
-            <h3>⚠️ Error</h3>
+            <h3>⚠️ Analysis Failed</h3>
             <p id="errorMessage"></p>
         </div>
 
+        <!-- Results -->
         <div class="results" id="results">
+            <!-- Hero Summary -->
             <div class="hero-summary">
-                <div class="verdict-badge" id="verdictBadge">LOADING</div>
-                <h2 id="recommendation">...</h2>
-                <div class="score" id="overallScore">0/100</div>
+                <div class="verdict-badge" id="verdictBadge">GOOD LOCATION</div>
+                <h2 id="recommendation">Install 2 × 150 kW DC chargers</h2>
+                <div class="score" id="overallScore">68/100</div>
+
+                <div class="key-reasons">
+                    <h3>Key Insights:</h3>
+                    <ul id="keyReasons">
+                        <li>Analysis complete</li>
+                    </ul>
+                </div>
             </div>
 
+            <!-- Score Cards -->
             <div class="card">
-                <h2>📊 Scores</h2>
+                <h2 style="margin-bottom: 20px; color: #333;">📊 Location Scores</h2>
                 <div class="score-grid">
+                    <!-- Demand Score -->
                     <div class="score-card">
                         <h3>Demand</h3>
-                        <div class="score-value" id="demandScore">0</div>
+                        <div class="score-value score-good" id="demandScore">72</div>
+                        <div class="score-label" id="demandLabel">Good</div>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            Traffic: <span id="trafficValue">15,000</span> AADT
+                        </p>
+                        <p style="font-size: 0.9em; color: #666;">
+                            Sessions: <span id="sessionsValue">17.6</span>/day
+                        </p>
                     </div>
+
+                    <!-- Competition Score -->
                     <div class="score-card">
                         <h3>Competition</h3>
-                        <div class="score-value" id="competitionScore">0</div>
+                        <div class="score-value score-excellent" id="competitionScore">95</div>
+                        <div class="score-label" id="competitionLabel">Minimal</div>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                            Nearby: <span id="nearbyChargers">0</span> chargers
+                        </p>
+                        <p style="font-size: 0.9em; color: #666;">
+                            Closest: <span id="closestCharger">5.0</span> km
+                        </p>
                     </div>
+
+                    <!-- Confidence Score -->
                     <div class="score-card">
                         <h3>Confidence</h3>
-                        <div class="score-value" id="confidenceScore">0</div>
+                        <div class="score-value score-good" id="confidenceScore">84</div>
+                        <div class="score-label">High</div>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 10px;" id="confidenceReason">
+                            Strong data quality
+                        </p>
                     </div>
                 </div>
             </div>
 
+            <!-- Financial Summary -->
             <div class="card">
-                <h2>💰 Financials</h2>
-                <p><strong>CAPEX:</strong> <span id="capex">-</span></p>
-                <p><strong>Annual Revenue:</strong> <span id="revenue">-</span></p>
-                <p><strong>Annual Profit:</strong> <span id="profit">-</span></p>
-                <p><strong>Payback:</strong> <span id="payback">-</span></p>
-                <p><strong>ROI:</strong> <span id="roi">-</span></p>
+                <h2 style="margin-bottom: 20px; color: #333;">💰 Financial Analysis</h2>
+                
+                <!-- Summary Cards -->
+                <div class="financial-grid">
+                    <div class="financial-item">
+                        <div class="label">Total Investment</div>
+                        <div class="value" id="capex">£105,000</div>
+                        <div class="sublabel">CAPEX</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="label">Annual Revenue</div>
+                        <div class="value" id="annualRevenue">£18,000</div>
+                        <div class="sublabel">Projected</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="label">Annual Profit</div>
+                        <div class="value" id="annualProfit">£8,000</div>
+                        <div class="sublabel">After OPEX</div>
+                    </div>
+                    <div class="financial-item">
+                        <div class="label">Payback Period</div>
+                        <div class="value" id="payback">5.8 years</div>
+                        <div class="sublabel" id="roiPercent">17% ROI</div>
+                    </div>
+                </div>
+
+                <div class="info-box" id="financialSummary">
+                    <strong>💡 Financial Summary:</strong> Moderate investment with reasonable returns
+                </div>
             </div>
 
-            <div class="card">
-                <h2>📋 Recommendations</h2>
-                <ul id="recommendations"></ul>
+            <!-- Competitive Gaps (if available) -->
+            <div class="card" id="competitiveGapsCard" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #333;">🎯 Market Opportunities</h2>
+                <div id="competitiveGapsContent"></div>
             </div>
 
+            <!-- Enhanced Opportunities (if available) -->
+            <div class="card" id="opportunitiesCard" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: #333;">🚀 Strategic Opportunities</h2>
+                <div id="opportunitiesContent"></div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendation-box">
+                <h3>📋 Recommended Actions</h3>
+                <ul id="recommendations">
+                    <li>Proceed with detailed analysis</li>
+                </ul>
+            </div>
+
+            <!-- Next Steps -->
             <div class="card">
-                <h2>🔍 Raw Response (Debug)</h2>
-                <pre id="rawResponse"></pre>
+                <div class="next-steps">
+                    <h3>📝 Next Steps</h3>
+                    <ol id="nextSteps">
+                        <li>Review this analysis</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Risks -->
+            <div class="risks" id="risksSection">
+                <h3>⚠️ Key Risks & Considerations</h3>
+                <ul id="risks">
+                    <li>Review detailed assumptions</li>
+                </ul>
             </div>
         </div>
     </div>
 
     <script>
+        // API Configuration
         const API_URL = 'https://web-production-e0c85.up.railway.app/api/v2/analyze-location';
 
         async function analyzeLocation() {
+            // Get input values
             const postcode = document.getElementById('postcode').value;
             const radius = parseFloat(document.getElementById('radius').value);
 
+            // Show loading
             document.getElementById('loading').classList.add('active');
             document.getElementById('results').classList.remove('active');
             document.getElementById('error').classList.remove('active');
 
+            // Prepare request
             const requestBody = {
-                location: { postcode: postcode },
+                location: {
+                    postcode: postcode
+                },
                 radius_km: radius,
                 planned_installation: {
                     charger_type: "DC",
@@ -297,13 +654,17 @@
                     tariff_per_kwh: 0.50,
                     fixed_costs_per_month: 500.0
                 },
-                options: { include_raw_sources: true }
+                options: {
+                    include_raw_sources: true
+                }
             };
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(requestBody)
                 });
 
@@ -318,70 +679,229 @@
                 console.error('Error:', error);
                 document.getElementById('loading').classList.remove('active');
                 document.getElementById('error').classList.add('active');
-                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').textContent = 
+                    `Failed to analyze location: ${error.message}. Please check your backend is running and try again.`;
             }
         }
 
         function displayResults(data) {
+            // Hide loading, show results
             document.getElementById('loading').classList.remove('active');
             document.getElementById('results').classList.add('active');
 
-            // Show raw response for debugging
-            document.getElementById('rawResponse').textContent = JSON.stringify(data, null, 2);
-
-            // Hero Summary - FIXED to match backend structure
+            // Hero Summary - Using correct field paths
             const verdict = data.verdict || "Unknown";
-            document.getElementById('verdictBadge').textContent = verdict;
+            const verdictClass = verdict.split(' ')[0]; // "Strong", "Moderate", "Not", etc.
+            const verdictBadge = document.getElementById('verdictBadge');
+            verdictBadge.textContent = verdict;
+            verdictBadge.className = 'verdict-badge verdict-' + verdictClass;
+
             document.getElementById('recommendation').textContent = 
-                data.summary?.headline_recommendation || "No recommendation";
+                data.summary?.headline_recommendation || "See details below";
             document.getElementById('overallScore').textContent = 
                 (data.overall_score || 0) + '/100';
 
-            // Scores - FIXED to match backend structure
-            const demandScore = data.demand?.score || 0;
-            const competitionScore = data.competition?.score || 0;
-            const confidenceScore = Math.round((data.confidence || 0) * 100);
+            // Key Reasons
+            const reasonsList = document.getElementById('keyReasons');
+            reasonsList.innerHTML = '';
+            if (data.summary?.key_reasons) {
+                data.summary.key_reasons.forEach(reason => {
+                    const li = document.createElement('li');
+                    li.textContent = reason;
+                    reasonsList.appendChild(li);
+                });
+            } else if (data.recommendations && data.recommendations.length > 0) {
+                data.recommendations.slice(0, 3).forEach(rec => {
+                    const li = document.createElement('li');
+                    li.textContent = rec;
+                    reasonsList.appendChild(li);
+                });
+            }
 
-            document.getElementById('demandScore').textContent = demandScore;
-            document.getElementById('competitionScore').textContent = competitionScore;
-            document.getElementById('confidenceScore').textContent = confidenceScore;
+            // Score Cards
+            displayScore('demand', data.demand?.score || 0);
+            displayScore('competition', data.competition?.score || 0);
+            
+            const confidencePercent = Math.round((data.confidence || 0) * 100);
+            displayScore('confidence', confidencePercent);
 
-            // Apply color classes
-            applyScoreColor('demandScore', demandScore);
-            applyScoreColor('competitionScore', competitionScore);
-            applyScoreColor('confidenceScore', confidenceScore);
+            // Demand details
+            document.getElementById('trafficValue').textContent = 
+                (data.demand?.avg_daily_traffic || 15000).toLocaleString();
+            document.getElementById('sessionsValue').textContent = 
+                (data.demand?.estimated_daily_sessions || 0).toFixed(1);
 
-            // Financials - FIXED to match backend structure
+            // Competition details
+            document.getElementById('nearbyChargers').textContent = 
+                data.competition?.nearby_chargers || 0;
+            document.getElementById('closestCharger').textContent = 
+                (data.competition?.closest_charger_km || 99).toFixed(1);
+
+            // Confidence details
+            if (data.confidence_assessment?.reasoning) {
+                document.getElementById('confidenceReason').textContent = 
+                    data.confidence_assessment.reasoning.substring(0, 50) + '...';
+            }
+
+            // Financials
             document.getElementById('capex').textContent = data.financials?.capex || '-';
-            document.getElementById('revenue').textContent = data.financials?.annual_revenue || '-';
-            document.getElementById('profit').textContent = data.financials?.annual_profit || '-';
+            document.getElementById('annualRevenue').textContent = data.financials?.annual_revenue || '-';
+            document.getElementById('annualProfit').textContent = data.financials?.annual_profit || '-';
             document.getElementById('payback').textContent = data.financials?.payback_period || '-';
-            document.getElementById('roi').textContent = data.financials?.roi || '-';
+            document.getElementById('roiPercent').textContent = 
+                (data.financials?.roi || '-') + ' ROI';
+
+            // Financial summary
+            const profitStr = data.financials?.annual_profit || '';
+            const isProfitable = !profitStr.includes('-') && profitStr !== '-';
+            const summaryIcon = isProfitable ? '✅' : '⚠️';
+            const summaryText = isProfitable ? 'Financially viable project' : 'Review financial assumptions carefully';
+            document.getElementById('financialSummary').innerHTML = 
+                `<strong>${summaryIcon} Financial Summary:</strong> ${summaryText}`;
+
+            // Competitive Gaps
+            if (data.competitive_gaps) {
+                displayCompetitiveGaps(data.competitive_gaps);
+            }
+
+            // Enhanced Opportunities
+            if (data.enhanced_opportunities && data.enhanced_opportunities.length > 0) {
+                displayOpportunities(data.enhanced_opportunities);
+            }
 
             // Recommendations
             const recList = document.getElementById('recommendations');
             recList.innerHTML = '';
-            if (data.recommendations && Array.isArray(data.recommendations)) {
+            if (data.recommendations && data.recommendations.length > 0) {
                 data.recommendations.forEach(rec => {
                     const li = document.createElement('li');
                     li.textContent = rec;
                     recList.appendChild(li);
                 });
             }
+
+            // Next Steps
+            const stepsList = document.getElementById('nextSteps');
+            stepsList.innerHTML = '';
+            if (data.next_steps && data.next_steps.length > 0) {
+                data.next_steps.forEach(step => {
+                    const li = document.createElement('li');
+                    li.textContent = step;
+                    stepsList.appendChild(li);
+                });
+            }
+
+            // Risks
+            const risksList = document.getElementById('risks');
+            risksList.innerHTML = '';
+            if (data.risks && data.risks.length > 0) {
+                data.risks.forEach(risk => {
+                    const li = document.createElement('li');
+                    li.textContent = risk;
+                    risksList.appendChild(li);
+                });
+            }
         }
 
-        function applyScoreColor(elementId, score) {
-            const element = document.getElementById(elementId);
-            element.className = 'score-value ';
+        function displayScore(elementId, score) {
+            const scoreElement = document.getElementById(elementId + 'Score');
+            const labelElement = document.getElementById(elementId + 'Label');
+
+            scoreElement.textContent = score;
+
+            // Color coding
+            let colorClass, label;
             if (score >= 80) {
-                element.className += 'score-excellent';
+                colorClass = 'score-excellent';
+                label = 'Excellent';
             } else if (score >= 65) {
-                element.className += 'score-good';
+                colorClass = 'score-good';
+                label = 'Good';
             } else if (score >= 50) {
-                element.className += 'score-moderate';
+                colorClass = 'score-moderate';
+                label = 'Moderate';
             } else {
-                element.className += 'score-weak';
+                colorClass = 'score-weak';
+                label = 'Weak';
             }
+
+            scoreElement.className = 'score-value ' + colorClass;
+            if (labelElement) {
+                labelElement.textContent = label;
+            }
+        }
+
+        function displayCompetitiveGaps(gaps) {
+            const card = document.getElementById('competitiveGapsCard');
+            const content = document.getElementById('competitiveGapsContent');
+            
+            card.style.display = 'block';
+            content.innerHTML = '';
+
+            // Show blue ocean opportunities if any
+            if (gaps.blue_ocean_opportunities && gaps.blue_ocean_opportunities.length > 0) {
+                const blueOceanBox = document.createElement('div');
+                blueOceanBox.className = 'info-box';
+                blueOceanBox.style.background = '#f0fdfa';
+                blueOceanBox.style.borderColor = '#14b8a6';
+                blueOceanBox.innerHTML = '<strong>🌊 Blue Ocean Opportunities:</strong>';
+                
+                const list = document.createElement('ul');
+                list.style.marginTop = '10px';
+                gaps.blue_ocean_opportunities.forEach(opp => {
+                    const li = document.createElement('li');
+                    li.textContent = opp.description;
+                    list.appendChild(li);
+                });
+                
+                blueOceanBox.appendChild(list);
+                content.appendChild(blueOceanBox);
+            }
+
+            // Show gap summary
+            if (gaps.summary) {
+                const summaryText = document.createElement('p');
+                summaryText.style.marginTop = '15px';
+                summaryText.style.color = '#666';
+                summaryText.textContent = `Total market gap: ${gaps.summary.total_gap_chargers} chargers. ` +
+                    `Average opportunity score: ${gaps.summary.average_opportunity_score}/10. ` +
+                    `Blue ocean markets: ${gaps.summary.blue_ocean_count}.`;
+                content.appendChild(summaryText);
+            }
+        }
+
+        function displayOpportunities(opportunities) {
+            const card = document.getElementById('opportunitiesCard');
+            const content = document.getElementById('opportunitiesContent');
+            
+            card.style.display = 'block';
+            content.innerHTML = '';
+
+            opportunities.forEach(opp => {
+                const oppCard = document.createElement('div');
+                oppCard.className = 'opportunity-card';
+                
+                let html = `
+                    <h4>${opp.title}</h4>
+                    <span class="priority-${opp.priority}">${opp.priority.toUpperCase()}</span>
+                    <p style="color: #666; margin: 10px 0;">${opp.description}</p>
+                `;
+
+                if (opp.timeframe) {
+                    html += `<p style="color: #999; font-size: 0.9em;"><strong>Timeframe:</strong> ${opp.timeframe}</p>`;
+                }
+
+                if (opp.next_steps && opp.next_steps.length > 0) {
+                    html += `<p style="margin-top: 10px; font-weight: 600;">Next Steps:</p><ul>`;
+                    opp.next_steps.slice(0, 3).forEach(step => {
+                        html += `<li>${step}</li>`;
+                    });
+                    html += `</ul>`;
+                }
+
+                oppCard.innerHTML = html;
+                content.appendChild(oppCard);
+            });
         }
     </script>
 </body>
